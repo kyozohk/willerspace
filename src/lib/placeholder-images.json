@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "willer-community",
+      "description": "Willer Community Event",
+      "imageUrl": "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21tdW5pdHklMjBldmVudHxlbnwwfHx8fDE3NjIxODYzNDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "community event"
+    },
+    {
+      "id": "contemplative-desk",
+      "description": "Contemplative Desk",
+      "imageUrl": "https://images.unsplash.com/photo-1659958661414-59d7bd483853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkZXNrJTIwc2V0dXB8ZW58MHx8fHwxNzYyMTU2ODAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "desk setup"
+    },
+    {
+      "id": "urban-exploration",
+      "description": "Urban Exploration",
+      "imageUrl": "https://images.unsplash.com/photo-1518729406574-12149251ac0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaXR5JTIwc3RyZWV0fGVufDB8fHx8MTc2MjA5NDg4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city street"
+    },
+    {
+      "id": "nature-walk",
+      "description": "Nature Walk",
+      "imageUrl": "https://images.unsplash.com/photo-1605196560547-b2f7281b7355?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc2MjEzMzExOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest path"
+    },
+    {
+      "id": "studio-session",
+      "description": "Studio Session",
+      "imageUrl": "https://images.unsplash.com/photo-1548502632-6b93092aad0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtdXNpYyUyMHN0dWRpb3xlbnwwfHx8fDE3NjIwOTEzNjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "music studio"
+    },
+    {
+      "id": "morning-coffee",
+      "description": "Morning Coffee",
+      "imageUrl": "https://images.unsplash.com/photo-1595434091143-b375ced5fe5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb2ZmZWUlMjBjdXB8ZW58MHx8fHwxNzYyMDc3ODcwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coffee cup"
+    }
+  ]
 }
