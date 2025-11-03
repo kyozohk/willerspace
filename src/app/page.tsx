@@ -5,6 +5,7 @@ import { SubscribeForm } from '@/components/SubscribeForm';
 import { WrittenContentCard } from '@/components/WrittenContentCard';
 import { AudioContentCard } from '@/components/AudioContentCard';
 import { VideoContentCard } from '@/components/VideoContentCard';
+import Image from 'next/image';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -28,6 +29,9 @@ export default async function Home() {
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-12 md:mb-20 space-y-4">
+            <div className="relative aspect-[2/1] rounded-lg overflow-hidden mb-8">
+              <Image src="/Intro desktop.png" alt="Intro" fill className="object-cover"/>
+            </div>
             <div className='flex items-center justify-center gap-4 mb-4'>
                 <CommunityAvatar />
                 <div>

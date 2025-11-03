@@ -23,15 +23,16 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background relative">
         <Image
-          src="https://images.unsplash.com/photo-1488866022504-f2584929ca5f?q=80&w=2062&auto=format&fit=crop"
+          src="/unsplash_-MCrF6hnojU.png"
           alt="Landscape background"
           fill
           className="object-cover object-bottom z-0"
-          data-ai-hint="landscape night"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-background/50 to-transparent mix-blend-multiply z-10"></div>
         <div className="absolute inset-0 bg-background/60 z-10"></div>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-gradient-radial from-primary/10 via-accent/5 to-transparent blur-3xl z-0"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 z-0">
+          <Image src="/Ellipse 1.png" alt="gradient ellipse" fill className="object-contain" />
+        </div>
         
         <div className="relative z-20 flex flex-col min-h-screen">
           <Header />

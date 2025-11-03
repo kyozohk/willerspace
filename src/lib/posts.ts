@@ -30,6 +30,7 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
       content: 'Lorem ipsum det, consectetur adipiscing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.',
       tags: ['Read', 'Short form'],
       duration: '4 min read',
+      imageUrl: '/Read short - desktop.png',
     },
     {
       type: 'audio',
@@ -38,6 +39,7 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
       tags: ['Listen', 'Podcast'],
       duration: '24:03',
       audioUrl: 'https://storage.googleapis.com/willer-dc7ae.appspot.com/audio/sample.mp3',
+      imageUrl: '/Listen music - desktop.png',
     },
      {
       type: 'audio',
@@ -46,13 +48,14 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
       tags: ['Listen', 'Music'],
       duration: '03:15',
       audioUrl: 'https://storage.googleapis.com/willer-dc7ae.appspot.com/audio/sample.mp3',
+      imageUrl: '/Listen music - desktop.png',
     },
     {
       type: 'video',
       title: 'Video content here',
       content: 'Preview short description and even a download link',
       tags: ['Watch', 'Short form video'],
-      imageUrl: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2070&auto=format&fit=crop',
+      imageUrl: '/Video card - Single hero image - desktop.png',
       duration: '4 min video',
     },
      {
@@ -60,7 +63,7 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
       title: 'Another video content',
       content: 'A stunning visual journey through urban landscapes.',
       tags: ['Watch', 'Featured'],
-      imageUrl: 'https://images.unsplash.com/photo-1519638399535-1b036603ac77?q=80&w=1931&auto=format&fit=crop',
+      imageUrl: '/Photo card - Inage fill.png',
       duration: '12 min video',
     },
 ];
