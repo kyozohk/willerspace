@@ -3,6 +3,7 @@ import { getSession } from '@/lib/session';
 import { Logo } from '@/components/icons/Logo';
 import { LogoutButton } from './LogoutButton';
 import { Button } from './ui/button';
+import { CommunityAvatar } from './CommunityAvatar';
 
 export async function Header() {
   const session = await getSession();
@@ -12,8 +13,8 @@ export async function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Logo className="h-6 w-6" />
-            <span className="font-bold font-headline sm:inline-block">
+            <CommunityAvatar className="h-8 w-8" />
+            <span className="font-bold font-headline sm:inline-block text-foreground">
               Willer's Space
             </span>
           </Link>

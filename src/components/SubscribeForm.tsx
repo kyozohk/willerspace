@@ -10,7 +10,6 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { subscribeAction } from '@/app/actions/subscribe';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Mail } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -30,8 +29,8 @@ export function SubscribeForm() {
   useEffect(() => {
     if (state.message) {
       toast({
-        title: state.message,
-        description: state.isError ? "Please try again." : "You're on the list!",
+        title: state.isError ? "Error" : "Subscribed!",
+        description: state.message,
         variant: state.isError ? 'destructive' : 'default',
       });
       if (!state.isError) {
@@ -52,17 +51,18 @@ export function SubscribeForm() {
           render={({ field }) => (
             <FormItem className="flex-1">
               <FormControl>
-                <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Enter your email" {...field} className="pl-10" />
-                </div>
+                <Input 
+                    placeholder="Enter your email" 
+                    {...field} 
+                    className="bg-background/50 border-muted focus:bg-background focus:ring-primary"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" variant="default" disabled={form.formState.isSubmitting}>
-          Subscribe
+        <Button type="submit" variant="default" disabled={form.formState.isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+          {form.formState.isSubmitting ? 'Subscribing...' : 'Subscribe'}
         </Button>
       </form>
     </Form>

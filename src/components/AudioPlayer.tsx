@@ -1,12 +1,11 @@
 'use client';
 
-import { PlayCircle, PauseCircle, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { useState, useRef, useEffect, type ChangeEvent } from 'react';
 
-export function AudioPlayer({ src }: { src: string }) {
+export function AudioPlayer({ src, size = 'default' }: { src: string, size?: 'small' | 'default' }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
 
@@ -15,7 +14,9 @@ export function AudioPlayer({ src }: { src: string }) {
     if (!audio) return;
 
     const setAudioData = () => {
-      setDuration(audio.duration);
+      if (isFinite(audio.duration)) {
+          setDuration(audio.duration);
+      }
       setCurrentTime(audio.currentTime);
     };
 
@@ -23,8 +24,6 @@ export function AudioPlayer({ src }: { src: string }) {
 
     audio.addEventListener('loadeddata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
-
-    // When audio ends, reset to play state
     audio.addEventListener('ended', () => setIsPlaying(false));
 
     return () => {
@@ -45,13 +44,6 @@ export function AudioPlayer({ src }: { src: string }) {
     }
     setIsPlaying(!isPlaying);
   };
-  
-  const toggleMute = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
 
   const handleTimeSliderChange = (e: ChangeEvent<HTMLInputElement>) => {
     const time = Number(e.target.value);
@@ -62,42 +54,47 @@ export function AudioPlayer({ src }: { src: string }) {
   };
 
   const formatTime = (time: number) => {
+    if (isNaN(time) || !isFinite(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const playButtonSize = size === 'small' ? 'h-6 w-6' : 'h-8 w-8';
+  const iconSize = size === 'small' ? 'h-4 w-4' : 'h-5 w-5';
+
   return (
-    <div className="flex items-center gap-2 text-white">
+    <div className="flex items-center gap-2 text-foreground">
       <audio ref={audioRef} src={src} preload="metadata" />
-      <button onClick={togglePlayPause} className="focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full">
+      <button 
+        onClick={togglePlayPause} 
+        className={`flex items-center justify-center rounded-full bg-primary text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${playButtonSize}`}
+      >
         {isPlaying ? (
-          <PauseCircle className="h-6 w-6" />
+          <Pause className={iconSize} />
         ) : (
-          <PlayCircle className="h-6 w-6" />
+          <Play className={`${iconSize} translate-x-px`} />
         )}
       </button>
       
-      <span className="text-xs w-10 tabular-nums">{formatTime(currentTime)}</span>
-      
-      <input
-        type="range"
-        min="0"
-        max={duration || 0}
-        value={currentTime}
-        onChange={handleTimeSliderChange}
-        className="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-primary"
-      />
-      
-      <span className="text-xs w-10 tabular-nums">{formatTime(duration)}</span>
-      
-       <button onClick={toggleMute} className="focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full">
-        {isMuted ? (
-          <VolumeX className="h-5 w-5" />
-        ) : (
-          <Volume2 className="h-5 w-5" />
-        )}
-      </button>
+      <div className="flex items-center gap-2 flex-grow bg-muted/50 rounded-full px-3 h-8">
+        <span className="text-xs w-10 tabular-nums text-muted-foreground">{formatTime(currentTime)}</span>
+        
+        <div className="flex-grow relative h-1 bg-muted rounded-full">
+            <input
+                type="range"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleTimeSliderChange}
+                className="w-full h-1 bg-transparent appearance-none cursor-pointer group"
+                style={{ background: 'transparent' }}
+            />
+             <div className="absolute top-0 left-0 h-1 bg-primary rounded-full pointer-events-none" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+        </div>
+
+        <span className="text-xs w-10 tabular-nums text-muted-foreground">{formatTime(duration)}</span>
+      </div>
     </div>
   );
 }
