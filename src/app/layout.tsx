@@ -23,7 +23,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background relative">
         <Image
-          src="/Willer community desktop@2x.png"
+          src="/bg.png"
           alt="Community background"
           fill
           className="object-cover object-center z-0 opacity-10"
