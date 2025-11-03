@@ -26,7 +26,7 @@ export default function RootLayout({
           src="/bg.png"
           alt="Community background"
           fill
-          className="object-cover object-center z-0 opacity-10"
+          className="object-cover object-center z-0 opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-background/50 to-transparent mix-blend-multiply z-10"></div>
         <div className="absolute inset-0 bg-background/80 z-10"></div>
