@@ -1,5 +1,4 @@
-import { format } from 'date-fns';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from './ui/badge';
 import { AudioPlayer } from './AudioPlayer';
 import type { Post } from '@/lib/posts';
@@ -10,25 +9,17 @@ type AudioContentCardProps = {
 
 export function AudioContentCard({ post }: AudioContentCardProps) {
   return (
-    <Card className="overflow-hidden bg-card hover:bg-muted/50 transition-colors p-6">
-        <CardHeader className="p-0 mb-2">
-            <div className="flex items-center gap-2 mb-2">
+    <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border border-border transition-colors shadow-lg shadow-black/20">
+        <CardContent className="p-4 sm:p-6">
+             <div className="flex items-center gap-2 mb-3">
                 {post.tags.map(tag => (
-                    <Badge key={tag} variant="secondary" className="bg-blue-500/20 text-blue-300">{tag}</Badge>
+                    <Badge key={tag} variant="secondary" className="bg-blue-500/10 text-blue-400 border border-blue-500/20">{tag}</Badge>
                 ))}
             </div>
-            <CardTitle className="font-headline text-2xl">{post.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0 mb-4">
-            <p className="text-muted-foreground">{post.content}</p>
-        </CardContent>
-        <CardFooter className="p-0 flex flex-col items-start gap-4">
+            <CardTitle className="font-headline text-xl mb-2">{post.title}</CardTitle>
+            <p className="text-muted-foreground text-sm mb-4">{post.content}</p>
             {post.audioUrl && <AudioPlayer src={post.audioUrl} />}
-            <div className="text-xs text-muted-foreground w-full flex justify-between">
-                <span>{format(new Date(post.createdAt), 'MM/dd/yy')}</span>
-                <span>{post.duration}</span>
-            </div>
-        </CardFooter>
+        </CardContent>
     </Card>
   );
 }

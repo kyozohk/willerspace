@@ -48,14 +48,6 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
       audioUrl: 'https://storage.googleapis.com/willer-dc7ae.appspot.com/audio/sample.mp3',
     },
     {
-      type: 'text',
-      title: 'Written content card',
-      content: 'Lorem ipsum det, consectetur adipiscing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.',
-      tags: ['Read', 'Long form article'],
-      imageUrl: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=2070&auto=format&fit=crop',
-      duration: '8 min read',
-    },
-    {
       type: 'video',
       title: 'Video content here',
       content: 'Preview short description and even a download link',
@@ -84,14 +76,14 @@ export async function getPosts(): Promise<Post[]> {
       const data = doc.data();
       return {
         id: doc.id,
-        type: data.type || 'text',
-        title: data.title,
+        type: data.audioUrl ? 'audio' : (data.videoUrl ? 'video' : 'text'),
+        title: data.title || "A new post",
         content: data.content,
-        tags: data.tags || [],
+        tags: data.tags || ['Read'],
         imageUrl: data.imageUrl || data.backgroundImageUrl,
         audioUrl: data.audioUrl,
         videoUrl: data.videoUrl,
-        duration: data.duration,
+        duration: data.duration || "5 min read",
         createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
       } as Post;
     });
@@ -122,9 +114,23 @@ export async function getPosts(): Promise<Post[]> {
 export async function addPost(post: NewPost) {
     try {
         const postsCollection = collection(db, 'posts');
+        const newPost: Partial<Post> = {
+            content: post.content,
+            imageUrl: post.backgroundImageUrl,
+            createdAt: new Date(),
+            type: post.audioUrl ? 'audio' : 'text',
+            title: post.content.substring(0, 30) + '...',
+            tags: post.audioUrl ? ['Listen'] : ['Read'],
+            duration: '3 min read',
+        }
+
+        if (post.audioUrl) {
+            newPost.audioUrl = post.audioUrl;
+        }
+
         await addDoc(postsCollection, {
-            ...post,
-            createdAt: Timestamp.now(),
+            ...newPost,
+            createdAt: Timestamp.fromDate(newPost.createdAt),
         });
     } catch (error) {
         console.error("Error adding post: ", error);

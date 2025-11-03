@@ -3,7 +3,7 @@
 import { Play, Pause } from 'lucide-react';
 import { useState, useRef, useEffect, type ChangeEvent } from 'react';
 
-export function AudioPlayer({ src, size = 'default' }: { src: string, size?: 'small' | 'default' }) {
+export function AudioPlayer({ src }: { src: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -21,15 +21,16 @@ export function AudioPlayer({ src, size = 'default' }: { src: string, size?: 'sm
     };
 
     const setAudioTime = () => setCurrentTime(audio.currentTime);
+    const handleEnd = () => setIsPlaying(false);
 
     audio.addEventListener('loadeddata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
-    audio.addEventListener('ended', () => setIsPlaying(false));
+    audio.addEventListener('ended', handleEnd);
 
     return () => {
       audio.removeEventListener('loadeddata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
-      audio.removeEventListener('ended', () => setIsPlaying(false));
+      audio.removeEventListener('ended', handleEnd);
     };
   }, []);
 
@@ -60,40 +61,38 @@ export function AudioPlayer({ src, size = 'default' }: { src: string, size?: 'sm
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const playButtonSize = size === 'small' ? 'h-6 w-6' : 'h-8 w-8';
-  const iconSize = size === 'small' ? 'h-4 w-4' : 'h-5 w-5';
-
   return (
-    <div className="flex items-center gap-2 text-foreground">
+    <div className="flex items-center gap-3 w-full text-foreground">
       <audio ref={audioRef} src={src} preload="metadata" />
       <button 
         onClick={togglePlayPause} 
-        className={`flex items-center justify-center rounded-full bg-primary text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${playButtonSize}`}
+        className="flex items-center justify-center rounded-full bg-primary/20 text-primary h-8 w-8 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-primary/30 transition-colors"
       >
         {isPlaying ? (
-          <Pause className={iconSize} />
+          <Pause className="h-4 w-4" />
         ) : (
-          <Play className={`${iconSize} translate-x-px`} />
+          <Play className="h-4 w-4 translate-x-px" />
         )}
       </button>
       
-      <div className="flex items-center gap-2 flex-grow bg-muted/50 rounded-full px-3 h-8">
-        <span className="text-xs w-10 tabular-nums text-muted-foreground">{formatTime(currentTime)}</span>
-        
-        <div className="flex-grow relative h-1 bg-muted rounded-full">
+      <div className="flex items-center gap-3 flex-grow">
+        <div className="flex-grow relative h-1.5 bg-muted rounded-full cursor-pointer group">
             <input
                 type="range"
                 min="0"
                 max={duration || 0}
                 value={currentTime}
                 onChange={handleTimeSliderChange}
-                className="w-full h-1 bg-transparent appearance-none cursor-pointer group"
-                style={{ background: 'transparent' }}
+                className="w-full h-full bg-transparent appearance-none cursor-pointer absolute inset-0 z-10"
             />
-             <div className="absolute top-0 left-0 h-1 bg-primary rounded-full pointer-events-none" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+             <div className="absolute top-0 left-0 h-full bg-primary/50 rounded-full pointer-events-none" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+             <div 
+                className="absolute top-1/2 -translate-y-1/2 h-3 w-3 bg-primary rounded-full pointer-events-none -translate-x-1/2 transition-opacity opacity-0 group-hover:opacity-100" 
+                style={{ left: `${(currentTime / duration) * 100}%` }}>
+            </div>
         </div>
 
-        <span className="text-xs w-10 tabular-nums text-muted-foreground">{formatTime(duration)}</span>
+        <span className="text-xs w-12 tabular-nums text-muted-foreground">{formatTime(currentTime)}/{formatTime(duration)}</span>
       </div>
     </div>
   );

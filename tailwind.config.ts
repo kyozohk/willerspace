@@ -10,7 +10,7 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
         "2xl": "1400px",
       },
@@ -20,6 +20,9 @@ export default {
         body: ['"PT Sans"', 'sans-serif'],
         headline: ['"Playfair Display"', 'serif'],
         code: ['monospace'],
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
       colors: {
         background: 'hsl(var(--background))',

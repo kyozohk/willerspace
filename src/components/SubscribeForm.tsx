@@ -43,25 +43,25 @@ export function SubscribeForm() {
     <Form {...form}>
       <form
         action={formAction}
-        className="flex w-full max-w-md items-start space-x-2"
+        className="flex w-full max-w-md flex-col sm:flex-row items-start space-y-2 sm:space-y-0 sm:space-x-2"
       >
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem className="flex-1 w-full">
               <FormControl>
                 <Input 
                     placeholder="Enter your email" 
                     {...field} 
-                    className="bg-background/50 border-muted focus:bg-background focus:ring-primary"
+                    className="bg-background/50 border-border focus:bg-background/80 focus:ring-primary h-12 text-base"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" variant="default" disabled={form.formState.isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+        <Button type="submit" variant="default" size="lg" disabled={form.formState.isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold w-full sm:w-auto h-12">
           {form.formState.isSubmitting ? 'Subscribing...' : 'Subscribe'}
         </Button>
       </form>

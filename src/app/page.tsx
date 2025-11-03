@@ -27,23 +27,23 @@ export default async function Home() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="max-w-3xl mx-auto">
-        <header className="text-center mb-16 space-y-4">
+        <header className="text-center mb-12 md:mb-20 space-y-4">
             <div className='flex items-center justify-center gap-4 mb-4'>
                 <CommunityAvatar />
                 <div>
-                    <h1 className='text-2xl font-bold font-headline'>Willer Community</h1>
+                    <h1 className='text-xl font-bold font-headline text-foreground'>Willer Community</h1>
                     <p className='text-muted-foreground text-sm'>A living journal of ideas, process and creative evolution</p>
                 </div>
             </div>
-          <h2 className="font-headline text-5xl md:text-7xl font-bold tracking-tighter leading-tight">
+          <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-foreground to-foreground">
             Exploring the space between sound and thought
           </h2>
         </header>
 
-        <section className="mb-16">
-            <div className="bg-card p-8 rounded-lg shadow-lg">
-                <h3 className="text-2xl font-bold font-headline text-accent mb-2">I'd love you to join the community</h3>
-                <p className="text-muted-foreground mb-6">
+        <section className="mb-12 md:mb-20">
+            <div className="bg-card/80 backdrop-blur-sm border border-border p-6 sm:p-8 rounded-lg shadow-2xl shadow-black/20">
+                <h3 className="text-2xl font-bold font-headline text-foreground mb-2">I'd love you to join the community</h3>
+                <p className="text-muted-foreground mb-6 text-sm">
                 Get exclusive content, updates, and insights delivered straight to your inbox. Members will be able to respond to content pieces, and receive private responses to what Willer writes. Willer will respond where possible.
                 </p>
                 <SubscribeForm />
@@ -54,7 +54,7 @@ export default async function Home() {
           {posts.length > 0 ? (
             posts.map(renderPost)
           ) : (
-            <div className="text-center py-20 bg-card rounded-lg shadow-sm border border-dashed">
+            <div className="text-center py-20 bg-card/50 rounded-lg shadow-sm border border-dashed">
               <div className="flex justify-center mb-4">
                 <MessageSquare className="w-16 h-16 text-muted-foreground/50" />
               </div>

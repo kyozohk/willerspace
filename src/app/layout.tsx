@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import './globals.css';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: "Willer's Space",
@@ -19,12 +19,24 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col bg-background">
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+      <body className="font-body antialiased min-h-screen flex flex-col bg-background relative">
+        <Image
+          src="https://images.unsplash.com/photo-1488866022504-f2584929ca5f?q=80&w=2062&auto=format&fit=crop"
+          alt="Landscape background"
+          fill
+          className="object-cover object-bottom z-0"
+          data-ai-hint="landscape night"
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-background/50 to-transparent mix-blend-multiply z-10"></div>
+        <div className="absolute inset-0 bg-background/60 z-10"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-gradient-radial from-primary/10 via-accent/5 to-transparent blur-3xl z-0"></div>
+        
+        <div className="relative z-20 flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow">{children}</main>
+        </div>
         <Toaster />
       </body>
     </html>
