@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { type Post } from '@/lib/posts-data';
 
-type WrittenContentCardProps = {
+type TextCardProps = {
   post: Post;
   layout?: 'mobile' | 'desktop';
 };
 
-export function WrittenContentCard({ post, layout = 'desktop' }: WrittenContentCardProps) {
+export function TextCard({ post, layout = 'desktop' }: TextCardProps) {
   const { title, content, type, format, date, readTime, href, imageUrl } = post;
   const isImageFormat = format === 'image-text';
   const isShortForm = type === 'short';
@@ -58,15 +58,12 @@ export function WrittenContentCard({ post, layout = 'desktop' }: WrittenContentC
             
             {/* Footer */}
             <div className="flex justify-between items-center">
-              <span className="text-slate-600 text-sm">{date} • {readTime}</span>
-              
-              <Link href={href} className="flex items-center gap-1">
-                <div className="flex items-center bg-gray-500 rounded-full py-1.5 px-4">
-                  <span className="text-white font-medium mr-2">READ</span>
-                  <div className="rounded-full">
-                    <ArrowRight className="h-4 w-4 text-white" />
-                  </div>
-                </div>
+              <span className="text-slate-600 text-sm">{date} • {readTime}</span>              
+              <Link href={href} className="flex items-center gap-2">
+                <span className="text-slate-700 font-medium text-base">READ</span>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#666876]">
+                  <ArrowRight className="h-5 w-5 text-white" />
+                </span>
               </Link>
             </div>
           </div>

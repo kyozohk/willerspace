@@ -4,12 +4,12 @@ import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type VideoPost } from '@/lib/video-posts';
 
-type VideoContentCardProps = {
+type VideoCardProps = {
   post: VideoPost;
   layout?: 'mobile' | 'desktop';
 };
 
-export function VideoContentCard({ post, layout = 'desktop' }: VideoContentCardProps) {
+export function VideoCard({ post, layout = 'desktop' }: VideoCardProps) {
   const { title, description, type, duration, durationInMinutes, href, thumbnailUrl } = post;
   const isMobile = layout === 'mobile';
   

@@ -1,105 +1,159 @@
-import { SubscribeForm } from '@/components/SubscribeForm';
-import { WrittenContentCard } from '@/components/WrittenContentCard';
-import { AudioContentCard } from '@/components/AudioContentCard';
-import { VideoContentCard } from '@/components/VideoContentCard';
-import { getPosts } from '@/lib/posts-data';
-import { getAudioPosts } from '@/lib/audio-posts';
-import { getVideoPosts } from '@/lib/video-posts';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight, LogIn, UserPlus } from 'lucide-react';
 
+export default function Home() {
+  const { user, profile, loading } = useAuthContext();
+  const router = useRouter();
 
-export default async function Home() {
-  const posts = getPosts();
-  const audioPosts = getAudioPosts();
-  const videoPosts = getVideoPosts();
-  
+  // Redirect logged-in users to their profile page
+  useEffect(() => {
+    if (!loading && user && profile?.handle) {
+      router.push(`/${profile.handle}`);
+    }
+  }, [user, profile, loading, router]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="animate-pulse space-y-4">
+            <div className="h-12 w-48 bg-white/20 rounded mx-auto"></div>
+            <div className="h-8 w-64 bg-white/20 rounded mx-auto"></div>
+            <div className="h-40 bg-white/10 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is logged in but doesn't have a handle, redirect to handle setup
+  if (user && !profile?.handle) {
+    router.push('/setup-handle');
+    return null;
+  }
+
+  // Landing page for non-logged-in users
   return (
     <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
       <div className="max-w-5xl mx-auto">
-        {/* Title component with logo and subtitle */}
-        <div className="flex items-center mb-12">
+        {/* Hero section */}
+        <div className="text-center mb-16">
           <Image 
-            src="/favicon.png" 
-            alt="Willer Community Logo" 
-            width={72} 
-            height={72} 
-            className="rounded-full"
+            src="/logo.png" 
+            alt="Willerspace Logo" 
+            width={200} 
+            height={80} 
+            className="mx-auto mb-8"
             priority
           />
-          <div className="ml-4">
-            <h2 className="text-2xl font-medium text-slate-600">Willer Community</h2>
-            <p className="text-slate-500/90 text-sm md:text-base">A living journal of ideas, process, and creative evolution</p>
+          
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mt-8 mb-6 leading-[1.15] font-['Playfair_Display']">
+            Share Your Voice
+          </h1>
+          
+          <p className="text-xl text-white/80 max-w-2xl mx-auto mb-12">
+            Create and share text, audio, and video content with your own personalized profile.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button size="lg" className="bg-purple-600 hover:bg-purple-700" asChild>
+              <Link href="/signup">
+                <UserPlus className="mr-2 h-5 w-5" />
+                Sign Up
+              </Link>
+            </Button>
+            
+            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" asChild>
+              <Link href="/signin">
+                <LogIn className="mr-2 h-5 w-5" />
+                Sign In
+              </Link>
+            </Button>
           </div>
         </div>
         
-        {/* Main headline */}
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-[#7b6d9b] mt-12 leading-[1.15] font-['Playfair_Display']">
-          Exploring the space between<br />
-          sound and thought
-        </h1>
-        
-        {/* Subscribe Form */}
-        <div className="mt-16">
-          <SubscribeForm />
+        {/* Feature cards */}
+        <div className="grid md:grid-cols-3 gap-8 mt-24">
+          {/* Text content */}
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Write</CardTitle>
+              <CardDescription className="text-white/70">
+                Share your thoughts and ideas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white/80">
+                Create blog posts, articles, and short-form content to share with your audience.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/explore" className="text-purple-300 hover:text-purple-200 flex items-center">
+                Explore <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </CardFooter>
+          </Card>
+          
+          {/* Audio content */}
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Record</CardTitle>
+              <CardDescription className="text-white/70">
+                Share your voice and music
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white/80">
+                Upload or record audio content, podcasts, and music directly from your browser.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/explore" className="text-blue-300 hover:text-blue-200 flex items-center">
+                Explore <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </CardFooter>
+          </Card>
+          
+          {/* Video content */}
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Film</CardTitle>
+              <CardDescription className="text-white/70">
+                Share your videos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white/80">
+                Upload or record video content directly from your browser and share with your audience.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/explore" className="text-red-300 hover:text-red-200 flex items-center">
+                Explore <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </CardFooter>
+          </Card>
         </div>
         
-        {/* Content Cards */}
-        <div className="mt-24 space-y-16">
-          {/* Written Content Cards - Text Only */}
-          <div>
-            <div className="space-y-6 md:block hidden">
-              {posts.filter(post => post.format === 'text').map((post) => (
-                <WrittenContentCard key={post.id} post={post} layout="desktop" />
-              ))}
-            </div>
-            <div className="md:hidden grid grid-cols-1 gap-6">
-              {posts.filter(post => post.format === 'text').map((post) => (
-                <WrittenContentCard key={post.id} post={post} layout="mobile" />
-              ))}
-            </div>
-          </div>
+        {/* CTA section */}
+        <div className="mt-24 text-center">
+          <h2 className="text-3xl font-medium text-white mb-6">Ready to get started?</h2>
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
+            Create your account today and start sharing your content with the world.
+          </p>
           
-          {/* Written Content Cards - With Image */}
-          <div>
-            <div className="space-y-6 md:block hidden">
-              {posts.filter(post => post.format === 'image-text').map((post) => (
-                <WrittenContentCard key={post.id} post={post} layout="desktop" />
-              ))}
-            </div>
-            <div className="md:hidden grid grid-cols-1 gap-6">
-              {posts.filter(post => post.format === 'image-text').map((post) => (
-                <WrittenContentCard key={post.id} post={post} layout="mobile" />
-              ))}
-            </div>
-          </div>
-          
-          {/* Audio Content Cards */}
-          <div>
-            <div className="space-y-6 md:block hidden">
-              {audioPosts.slice(0, 2).map((post) => (
-                <AudioContentCard key={post.id} post={post} layout="desktop" />
-              ))}
-            </div>
-            <div className="md:hidden grid grid-cols-1 gap-6">
-              {audioPosts.slice(0, 2).map((post) => (
-                <AudioContentCard key={post.id} post={post} layout="mobile" />
-              ))}
-            </div>
-          </div>
-          
-          {/* Video Content Cards */}
-          <div>
-            <div className="space-y-6 md:block hidden">
-              {videoPosts.slice(0, 2).map((post) => (
-                <VideoContentCard key={post.id} post={post} layout="desktop" />
-              ))}
-            </div>
-            <div className="md:hidden grid grid-cols-1 gap-6">
-              {videoPosts.slice(0, 2).map((post) => (
-                <VideoContentCard key={post.id} post={post} layout="mobile" />
-              ))}
-            </div>
-          </div>
+          <Button size="lg" className="bg-purple-600 hover:bg-purple-700" asChild>
+            <Link href="/signup">Create Your Account</Link>
+          </Button>
         </div>
       </div>
     </div>

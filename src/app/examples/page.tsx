@@ -1,8 +1,8 @@
 'use client';
 
-import { WrittenContentCard } from '@/components/WrittenContentCard';
-import { AudioContentCard } from '@/components/AudioContentCard';
-import { VideoContentCard } from '@/components/VideoContentCard';
+import { TextCard } from '@/components/TextCard';
+import { VoiceCard } from '@/components/VoiceCard';
+import { VideoCard } from '@/components/VideoCard';
 import { getPosts } from '@/lib/posts-data';
 import { getAudioPosts } from '@/lib/audio-posts';
 import { getVideoPosts } from '@/lib/video-posts';
@@ -39,9 +39,9 @@ export default function ExamplesPage() {
         <section className="mb-16">
           <h2 className="text-3xl font-medium text-white mb-8">Written Content Cards</h2>
           <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'} gap-8`}>
-            <WrittenContentCard post={posts[0]} layout={viewMode} />
-            <WrittenContentCard post={posts[1]} layout={viewMode} />
-            <WrittenContentCard post={posts[2]} layout={viewMode} />
+            <TextCard post={posts[0]} layout={viewMode} />
+            <TextCard post={posts[1]} layout={viewMode} />
+            <TextCard post={posts[2]} layout={viewMode} />
           </div>
         </section>
         
@@ -49,8 +49,8 @@ export default function ExamplesPage() {
         <section className="mb-16">
           <h2 className="text-3xl font-medium text-white mb-8">Audio Content Cards</h2>
           <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'} gap-8`}>
-            <AudioContentCard post={audioPosts[0]} layout={viewMode} />
-            <AudioContentCard post={audioPosts[1]} layout={viewMode} />
+            <VoiceCard post={audioPosts[0]} layout={viewMode} />
+            <VoiceCard post={audioPosts[1]} layout={viewMode} />
           </div>
         </section>
         
@@ -58,8 +58,8 @@ export default function ExamplesPage() {
         <section className="mb-16">
           <h2 className="text-3xl font-medium text-white mb-8">Video Content Cards</h2>
           <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'} gap-8`}>
-            <VideoContentCard post={videoPosts[0]} layout={viewMode} />
-            <VideoContentCard post={videoPosts[1]} layout={viewMode} />
+            <VideoCard post={videoPosts[0]} layout={viewMode} />
+            <VideoCard post={videoPosts[1]} layout={viewMode} />
           </div>
         </section>
       </div>

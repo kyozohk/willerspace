@@ -2,11 +2,12 @@ export type ContentType = "read" | "listen" | "watch";
 
 export interface BaseContent {
   id: string;
+  userId: string;
   title: string;
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  publishedAt: Date;
+  publishedAt: Date | null;
   published: boolean;
   type: ContentType;
 }

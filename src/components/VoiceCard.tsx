@@ -7,12 +7,12 @@ import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { type AudioPost } from '@/lib/audio-posts';
 
-type AudioContentCardProps = {
+type VoiceCardProps = {
   post: AudioPost;
   layout?: 'mobile' | 'desktop';
 };
 
-export function AudioContentCard({ post, layout = 'desktop' }: AudioContentCardProps) {
+export function VoiceCard({ post, layout = 'desktop' }: VoiceCardProps) {
   const { title, description, type, duration, audioUrl, href } = post;
   const isMobile = layout === 'mobile';
   const audioRef = useRef<HTMLAudioElement>(null);

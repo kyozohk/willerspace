@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default rule - deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // User profiles
+    match /users/{userId} {
+      // Allow users to read any user profile
+      allow read: if true;
+      
+      // Allow users to create their own profile
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow users to update their own profile
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Don't allow users to delete their profile (admin only)
+      allow delete: if false;
+    }
+    
+    // Handles (usernames)
+    match /handles/{handle} {
+      // Allow anyone to read handles
+      allow read: if true;
+      
+      // Allow authenticated users to create a handle if it links to their user ID
+      allow create: if request.auth != null && 
+                     request.resource.data.uid == request.auth.uid;
+      
+      // Don't allow updates to handles (they should be immutable)
+      allow update: if false;
+      
+      // Allow users to delete their own handles
+      allow delete: if request.auth != null && 
+                     resource.data.uid == request.auth.uid;
+    }
+    
+    // Content
+    match /content/{contentId} {
+      // Allow anyone to read published content
+      allow read: if resource.data.published == true || 
+                   (request.auth != null && resource.data.userId == request.auth.uid);
+      
+      // Allow authenticated users to create content with their user ID
+      allow create: if request.auth != null && 
+                     request.resource.data.userId == request.auth.uid;
+      
+      // Allow users to update their own content
+      allow update: if request.auth != null && 
+                     resource.data.userId == request.auth.uid;
+      
+      // Allow users to delete their own content
+      allow delete: if request.auth != null && 
+                     resource.data.userId == request.auth.uid;
+    }
+    
+    // Subscribers
+    match /subscribers/{subscriberId} {
+      // Allow anyone to create a subscription
+      allow create: if true;
+      
+      // Only allow admins to read, update, or delete subscribers
+      allow read, update, delete: if false;
+    }
+  }
+}
