@@ -71,7 +71,7 @@ export const getContentById = async (contentId: string): Promise<Content | null>
 export const createTextContent = async (
   userId: string,
   title: string,
-  description: string,
+  description: string = "",
   content: string,
   category: string,
   readTime: number,
@@ -107,7 +107,7 @@ export const createTextContent = async (
 export const createAudioContent = async (
   userId: string,
   title: string,
-  description: string,
+  description: string = "",
   audioFile: File,
   duration: number,
   podcastName?: string,
@@ -147,7 +147,7 @@ export const createAudioContent = async (
 export const createVideoContent = async (
   userId: string,
   title: string,
-  description: string,
+  description: string = "",
   videoFile: File,
   thumbnailFile: File,
   duration: number,

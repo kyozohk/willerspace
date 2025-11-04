@@ -53,6 +53,7 @@ export default function Home() {
             width={200} 
             height={80} 
             className="mx-auto mb-8"
+            style={{ height: 'auto' }}
             priority
           />
           

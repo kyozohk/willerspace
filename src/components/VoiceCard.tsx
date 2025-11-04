@@ -106,7 +106,7 @@ export function VoiceCard({ post, layout = 'desktop' }: VoiceCardProps) {
             {isMobile ? (
               <button 
                 onClick={togglePlayPause}
-                className="bg-gray-500 rounded-full p-2"
+                className="bg-[#5B91D7] rounded-full p-2"
               >
                 {isPlaying ? (
                   <Pause className="h-4 w-4 text-white" />
@@ -118,7 +118,7 @@ export function VoiceCard({ post, layout = 'desktop' }: VoiceCardProps) {
               <>
                 <button 
                   onClick={togglePlayPause}
-                  className="bg-gray-500 rounded-full p-2"
+                  className="bg-[#5B91D7] rounded-full p-2"
                 >
                   {isPlaying ? (
                     <Pause className="h-4 w-4 text-white" />

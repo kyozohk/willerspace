@@ -14,6 +14,7 @@ import { EditableVideoCard } from '@/components/EditableVideoCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PenLine, Mic, Video, Plus } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getUserByHandle } from '@/lib/users';
 import { getUserContent } from '@/lib/content';
 import { adaptContent } from '@/lib/content-adapters';
@@ -116,36 +117,65 @@ export default function UserFeedPage() {
         {/* Content Creation Buttons (Only visible to owner) */}
         {isOwner && (
           <div className="mb-12 flex flex-wrap gap-4">
-            <Button asChild className="bg-purple-600 hover:bg-purple-700">
-              <Link href={`/${handle}/create/text`}>
-                <PenLine className="mr-2 h-4 w-4" />
-                Write Text
-              </Link>
-            </Button>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link href={`/${handle}/create/audio`}>
-                <Mic className="mr-2 h-4 w-4" />
-                Record Audio
-              </Link>
-            </Button>
-            <Button asChild className="bg-red-600 hover:bg-red-700">
-              <Link href={`/${handle}/create/video`}>
-                <Video className="mr-2 h-4 w-4" />
-                Record Video
-              </Link>
-            </Button>
+            <div className="relative overflow-hidden rounded-lg">
+              <Image 
+                src="/text_card_bg.png" 
+                alt="Text button background" 
+                className="absolute inset-0 w-full h-full object-cover z-0"
+                width={200}
+                height={60}
+              />
+              <Button asChild variant="outline" className="relative z-10 border-purple-600 text-purple-600 hover:bg-purple-600/10 bg-transparent">
+                <Link href={`/${handle}/create/text`}>
+                  <PenLine className="mr-2 h-4 w-4" />
+                  Write Text
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="relative overflow-hidden rounded-lg">
+              <Image 
+                src="/audio_card_bg.png" 
+                alt="Audio button background" 
+                className="absolute inset-0 w-full h-full object-cover z-0"
+                width={200}
+                height={60}
+              />
+              <Button asChild variant="outline" className="relative z-10 border-blue-600 text-blue-600 hover:bg-blue-600/10 bg-transparent">
+                <Link href={`/${handle}/create/audio`}>
+                  <Mic className="mr-2 h-4 w-4" />
+                  Record Audio
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="relative overflow-hidden rounded-lg">
+              <Image 
+                src="/video_card_bg.png" 
+                alt="Video button background" 
+                className="absolute inset-0 w-full h-full object-cover z-0"
+                width={200}
+                height={60}
+              />
+              <Button asChild variant="outline" className="relative z-10 border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10 bg-transparent">
+                <Link href={`/${handle}/create/video`}>
+                  <Video className="mr-2 h-4 w-4" />
+                  Record Video
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
         
         {/* Content Tabs */}
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-8">
+        {/* <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="bg-white/10">
             <TabsTrigger value="all">All Content</TabsTrigger>
             <TabsTrigger value="text">Text</TabsTrigger>
             <TabsTrigger value="audio">Audio</TabsTrigger>
             <TabsTrigger value="video">Video</TabsTrigger>
           </TabsList>
-        </Tabs>
+        </Tabs> */}
         
         {/* Content List */}
         <div className="space-y-8">
@@ -221,9 +251,18 @@ export default function UserFeedPage() {
                     : `${profileUser.firstName} hasn't created any content yet.`}
                 </p>
                 {isOwner && (
-                  <Button asChild className="bg-purple-600 hover:bg-purple-700">
-                    <Link href={`/${handle}/create/text`}>Create Your First Post</Link>
-                  </Button>
+                  <div className="relative overflow-hidden rounded-lg inline-block">
+                    <Image 
+                      src="/text_card_bg.png" 
+                      alt="Text button background" 
+                      className="absolute inset-0 w-full h-full object-cover z-0"
+                      width={200}
+                      height={60}
+                    />
+                    <Button asChild variant="outline" className="relative z-10 border-purple-600 text-purple-600 hover:bg-purple-600/10 bg-transparent">
+                      <Link href={`/${handle}/create/text`}>Create Your First Post</Link>
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

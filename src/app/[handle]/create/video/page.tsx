@@ -19,7 +19,6 @@ export default function CreateVideoPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -211,7 +210,7 @@ export default function CreateVideoPage() {
       return;
     }
     
-    if (!title || !description) {
+    if (!title) {
       toast({
         title: 'Error',
         description: 'Please fill in all required fields.',
@@ -264,7 +263,7 @@ export default function CreateVideoPage() {
       await createVideoContent(
         user.uid,
         title,
-        description,
+        "", // Empty description
         finalVideoFile,
         finalThumbnailFile,
         duration,
@@ -338,17 +337,6 @@ export default function CreateVideoPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter a brief description"
-                  className="bg-white/10 border-white/20 text-white min-h-[80px]"
-                  required
-                />
-              </div>
               
               <div className="space-y-4">
                 <Label className="text-white">Video</Label>

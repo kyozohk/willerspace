@@ -23,7 +23,7 @@ export const adaptReadContent = (content: ReadContent, handle: string): Post => 
   return {
     id: content.id,
     title: content.title,
-    content: content.description, // Use description as preview content
+    content: content.content, // Use actual content instead of description
     type: content.readTime > 5 ? 'long' : 'short', // Determine type based on read time
     format: 'text', // Default to text format
     date: formatDate(content.publishedAt || content.createdAt),

@@ -59,12 +59,10 @@ export function VideoCard({ post, layout = 'desktop' }: VideoCardProps) {
           <div className="flex justify-between items-center mt-auto">
             <span className="text-slate-600 text-sm">{duration} • {durationInMinutes} min video</span>
             
-            <Link href={href} className="flex items-center gap-1">
-              <div className="flex items-center bg-gray-500 rounded-full py-1.5 px-4">
-                <span className="text-white font-medium mr-2">WATCH</span>
-                <div className="rounded-full">
-                  <ArrowRight className="h-4 w-4 text-white" />
-                </div>
+            <Link href={href} className="flex items-center gap-2">
+              <span className="text-[#FFB619] font-medium">WATCH</span>
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFB619]">
+                <ArrowRight className="h-4 w-4 text-white" />
               </div>
             </Link>
           </div>

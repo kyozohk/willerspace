@@ -60,10 +60,10 @@ export function TextCard({ post, layout = 'desktop' }: TextCardProps) {
             <div className="flex justify-between items-center">
               <span className="text-slate-600 text-sm">{date} • {readTime}</span>              
               <Link href={href} className="flex items-center gap-2">
-                <span className="text-slate-700 font-medium text-base">READ</span>
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#666876]">
-                  <ArrowRight className="h-5 w-5 text-white" />
-                </span>
+                <span className="text-gray-500 font-medium">READ</span>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-500">
+                  <ArrowRight className="h-4 w-4 text-white" />
+                </div>
               </Link>
             </div>
           </div>
@@ -114,12 +114,10 @@ export function TextCard({ post, layout = 'desktop' }: TextCardProps) {
             <div className="flex justify-between items-center mt-auto">
               <span className="text-slate-600 text-sm">{date} • {readTime}</span>
               
-              <Link href={href} className="flex items-center gap-1">
-                <div className="flex items-center bg-gray-500 rounded-full py-1.5 px-4">
-                  <span className="text-white font-medium mr-2">READ</span>
-                  <div className="rounded-full">
-                    <ArrowRight className="h-4 w-4 text-white" />
-                  </div>
+              <Link href={href} className="flex items-center gap-2">
+                <span className="text-gray-500 font-medium">READ</span>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-500">
+                  <ArrowRight className="h-4 w-4 text-white" />
                 </div>
               </Link>
             </div>
@@ -162,12 +160,10 @@ export function TextCard({ post, layout = 'desktop' }: TextCardProps) {
         <div className="flex justify-between items-center mt-auto">
           <span className="text-slate-600 text-sm">{date} • {readTime}</span>
           
-          <Link href={href} className="flex items-center gap-1">
-            <div className="flex items-center bg-gray-500 rounded-full py-1.5 px-4">
-              <span className="text-white font-medium mr-2">READ</span>
-              <div className="rounded-full">
-                <ArrowRight className="h-4 w-4 text-white" />
-              </div>
+          <Link href={href} className="flex items-center gap-2">
+            <span className="text-gray-500 font-medium">READ</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-500">
+              <ArrowRight className="h-4 w-4 text-white" />
             </div>
           </Link>
         </div>

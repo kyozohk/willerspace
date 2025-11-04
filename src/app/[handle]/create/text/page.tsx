@@ -18,7 +18,6 @@ export default function CreateTextPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('General');
   const [readTime, setReadTime] = useState(5);
@@ -70,7 +69,7 @@ export default function CreateTextPage() {
       return;
     }
     
-    if (!title || !description || !content) {
+    if (!title || !content) {
       toast({
         title: 'Error',
         description: 'Please fill in all required fields.',
@@ -85,7 +84,7 @@ export default function CreateTextPage() {
       await createTextContent(
         user.uid,
         title,
-        description,
+        "", // Empty description
         content,
         category,
         readTime,
@@ -159,17 +158,6 @@ export default function CreateTextPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter a brief description"
-                  className="bg-white/10 border-white/20 text-white min-h-[80px]"
-                  required
-                />
-              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="content" className="text-white">Content</Label>

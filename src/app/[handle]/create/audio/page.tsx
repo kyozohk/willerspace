@@ -18,7 +18,6 @@ export default function CreateAudioPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [podcastName, setPodcastName] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -151,7 +150,7 @@ export default function CreateAudioPage() {
       return;
     }
     
-    if (!title || !description) {
+    if (!title) {
       toast({
         title: 'Error',
         description: 'Please fill in all required fields.',
@@ -186,7 +185,7 @@ export default function CreateAudioPage() {
       await createAudioContent(
         user.uid,
         title,
-        description,
+        "", // Empty description
         finalAudioFile,
         duration,
         podcastName || undefined,
@@ -260,17 +259,6 @@ export default function CreateAudioPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter a brief description"
-                  className="bg-white/10 border-white/20 text-white min-h-[80px]"
-                  required
-                />
-              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="podcastName" className="text-white">Podcast Name (Optional)</Label>

@@ -28,7 +28,7 @@ export function Header() {
   
   // Add profile link if user is logged in and has a handle
   if (profile?.handle) {
-    navItems.push({ name: 'My Profile', href: `/${profile.handle}` });
+    navItems.push({ name: `@${profile.handle}`, href: `/${profile.handle}` });
   }
   
   const handleSignOut = async () => {
@@ -94,7 +94,7 @@ export function Header() {
               <DropdownMenuSeparator />
               {profile?.handle && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/${profile.handle}`}>My Profile</Link>
+                  <Link href={`/${profile.handle}`}>{profile.handle}</Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem asChild>
