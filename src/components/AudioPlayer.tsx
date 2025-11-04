@@ -62,7 +62,7 @@ export function AudioPlayer({ src }: { src: string }) {
   };
 
   return (
-    <div className="flex items-center gap-3 w-full text-foreground">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full text-foreground">
       <audio ref={audioRef} src={src} preload="metadata" />
       <button 
         onClick={togglePlayPause} 
@@ -75,7 +75,7 @@ export function AudioPlayer({ src }: { src: string }) {
         )}
       </button>
       
-      <div className="flex items-center gap-3 flex-grow">
+      <div className="flex items-center gap-2 sm:gap-3 flex-grow">
         <div className="flex-grow relative h-1.5 bg-muted rounded-full cursor-pointer group">
             <input
                 type="range"
@@ -87,12 +87,15 @@ export function AudioPlayer({ src }: { src: string }) {
             />
              <div className="absolute top-0 left-0 h-full bg-primary/50 rounded-full pointer-events-none" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
              <div 
-                className="absolute top-1/2 -translate-y-1/2 h-3 w-3 bg-primary rounded-full pointer-events-none -translate-x-1/2 transition-opacity opacity-0 group-hover:opacity-100" 
+                className="absolute top-1/2 -translate-y-1/2 h-2 w-2 sm:h-3 sm:w-3 bg-primary rounded-full pointer-events-none -translate-x-1/2 transition-opacity opacity-0 group-hover:opacity-100" 
                 style={{ left: `${(currentTime / duration) * 100}%` }}>
             </div>
         </div>
 
-        <span className="text-xs w-12 tabular-nums text-muted-foreground">{formatTime(currentTime)}/{formatTime(duration)}</span>
+        <span className="text-xs w-20 sm:w-24 tabular-nums text-muted-foreground text-right">
+          <span className="hidden sm:inline">{formatTime(currentTime)}/</span>
+          <span>{formatTime(duration)}</span>
+        </span>
       </div>
     </div>
   );

@@ -1,71 +1,105 @@
-import { getPosts, type Post } from '@/lib/posts';
-import { MessageSquare } from 'lucide-react';
-import { CommunityAvatar } from '@/components/CommunityAvatar';
 import { SubscribeForm } from '@/components/SubscribeForm';
 import { WrittenContentCard } from '@/components/WrittenContentCard';
 import { AudioContentCard } from '@/components/AudioContentCard';
 import { VideoContentCard } from '@/components/VideoContentCard';
+import { getPosts } from '@/lib/posts-data';
+import { getAudioPosts } from '@/lib/audio-posts';
+import { getVideoPosts } from '@/lib/video-posts';
 import Image from 'next/image';
 
-export const revalidate = 60; // Revalidate every 60 seconds
-
-const renderPost = (post: Post) => {
-  switch (post.type) {
-    case 'text':
-      return <WrittenContentCard key={post.id} post={post} />;
-    case 'audio':
-      return <AudioContentCard key={post.id} post={post} />;
-    case 'video':
-      return <VideoContentCard key={post.id} post={post} />;
-    default:
-      return null;
-  }
-}
 
 export default async function Home() {
-  const posts = await getPosts();
-
+  const posts = getPosts();
+  const audioPosts = getAudioPosts();
+  const videoPosts = getVideoPosts();
+  
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      <div className="max-w-3xl mx-auto">
-        <header className="text-center mb-12 md:mb-20 space-y-4">
-            <div className="relative aspect-[2/1] rounded-lg overflow-hidden mb-8">
-              <Image src="/Intro desktop.png" alt="Intro" fill className="object-cover"/>
+    <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
+      <div className="max-w-5xl mx-auto">
+        {/* Title component with logo and subtitle */}
+        <div className="flex items-center mb-12">
+          <Image 
+            src="/favicon.png" 
+            alt="Willer Community Logo" 
+            width={72} 
+            height={72} 
+            className="rounded-full"
+            priority
+          />
+          <div className="ml-4">
+            <h2 className="text-2xl font-medium text-slate-600">Willer Community</h2>
+            <p className="text-slate-500/90 text-sm md:text-base">A living journal of ideas, process, and creative evolution</p>
+          </div>
+        </div>
+        
+        {/* Main headline */}
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-[#7b6d9b] mt-12 leading-[1.15] font-['Playfair_Display']">
+          Exploring the space between<br />
+          sound and thought
+        </h1>
+        
+        {/* Subscribe Form */}
+        <div className="mt-16">
+          <SubscribeForm />
+        </div>
+        
+        {/* Content Cards */}
+        <div className="mt-24 space-y-16">
+          {/* Written Content Cards - Text Only */}
+          <div>
+            <div className="space-y-6 md:block hidden">
+              {posts.filter(post => post.format === 'text').map((post) => (
+                <WrittenContentCard key={post.id} post={post} layout="desktop" />
+              ))}
             </div>
-            <div className='flex items-center justify-center gap-4 mb-4'>
-                <CommunityAvatar />
-                <div>
-                    <h1 className='text-xl font-bold font-headline text-foreground'>Willer Community</h1>
-                    <p className='text-muted-foreground text-sm'>A living journal of ideas, process and creative evolution</p>
-                </div>
+            <div className="md:hidden grid grid-cols-1 gap-6">
+              {posts.filter(post => post.format === 'text').map((post) => (
+                <WrittenContentCard key={post.id} post={post} layout="mobile" />
+              ))}
             </div>
-          <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-foreground to-foreground">
-            Exploring the space between sound and thought
-          </h2>
-        </header>
-
-        <section className="mb-12 md:mb-20">
-            <div className="bg-card/80 backdrop-blur-sm border border-border p-6 sm:p-8 rounded-lg shadow-2xl shadow-black/20">
-                <h3 className="text-2xl font-bold font-headline text-foreground mb-2">I'd love you to join the community</h3>
-                <p className="text-muted-foreground mb-6 text-sm">
-                Get exclusive content, updates, and insights delivered straight to your inbox. Members will be able to respond to content pieces, and receive private responses to what Willer writes. Willer will respond where possible.
-                </p>
-                <SubscribeForm />
+          </div>
+          
+          {/* Written Content Cards - With Image */}
+          <div>
+            <div className="space-y-6 md:block hidden">
+              {posts.filter(post => post.format === 'image-text').map((post) => (
+                <WrittenContentCard key={post.id} post={post} layout="desktop" />
+              ))}
             </div>
-        </section>
-
-        <div className="space-y-6">
-          {posts.length > 0 ? (
-            posts.map(renderPost)
-          ) : (
-            <div className="text-center py-20 bg-card/50 rounded-lg shadow-sm border border-dashed">
-              <div className="flex justify-center mb-4">
-                <MessageSquare className="w-16 h-16 text-muted-foreground/50" />
-              </div>
-              <h2 className="text-2xl font-headline text-muted-foreground">No posts yet.</h2>
-              <p className="text-muted-foreground mt-2">Come back later for updates from Willer.</p>
+            <div className="md:hidden grid grid-cols-1 gap-6">
+              {posts.filter(post => post.format === 'image-text').map((post) => (
+                <WrittenContentCard key={post.id} post={post} layout="mobile" />
+              ))}
             </div>
-          )}
+          </div>
+          
+          {/* Audio Content Cards */}
+          <div>
+            <div className="space-y-6 md:block hidden">
+              {audioPosts.slice(0, 2).map((post) => (
+                <AudioContentCard key={post.id} post={post} layout="desktop" />
+              ))}
+            </div>
+            <div className="md:hidden grid grid-cols-1 gap-6">
+              {audioPosts.slice(0, 2).map((post) => (
+                <AudioContentCard key={post.id} post={post} layout="mobile" />
+              ))}
+            </div>
+          </div>
+          
+          {/* Video Content Cards */}
+          <div>
+            <div className="space-y-6 md:block hidden">
+              {videoPosts.slice(0, 2).map((post) => (
+                <VideoContentCard key={post.id} post={post} layout="desktop" />
+              ))}
+            </div>
+            <div className="md:hidden grid grid-cols-1 gap-6">
+              {videoPosts.slice(0, 2).map((post) => (
+                <VideoContentCard key={post.id} post={post} layout="mobile" />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase/client';
-import { collection, getDocs, addDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, orderBy, Timestamp, where } from 'firebase/firestore';
 
 export type PostType = 'text' | 'audio' | 'video';
 
@@ -20,6 +20,7 @@ export interface NewPost {
     content: string;
     backgroundImageUrl: string;
     audioUrl?: string;
+    videoUrl?: string;
 }
 
 // Hardcoded posts for demonstration
@@ -69,17 +70,24 @@ const hardcodedPosts: Omit<Post, 'id' | 'createdAt'>[] = [
 ];
 
 
-export async function getPosts(): Promise<Post[]> {
+export async function getPosts(type?: PostType): Promise<Post[]> {
   try {
     const postsCollection = collection(db, 'posts');
-    const q = query(postsCollection, orderBy('createdAt', 'desc'));
+    let q;
+    
+    if (type) {
+      q = query(postsCollection, where('type', '==', type), orderBy('createdAt', 'desc'));
+    } else {
+      q = query(postsCollection, orderBy('createdAt', 'desc'));
+    }
+    
     const postSnapshot = await getDocs(q);
     
     let postList = postSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
-        type: data.audioUrl ? 'audio' : (data.videoUrl ? 'video' : 'text'),
+        type: data.type || (data.audioUrl ? 'audio' : (data.videoUrl ? 'video' : 'text')),
         title: data.title || "A new post",
         content: data.content,
         tags: data.tags || ['Read'],
@@ -97,7 +105,7 @@ export async function getPosts(): Promise<Post[]> {
         const demoPosts = hardcodedPosts.map((p, i) => ({
             ...p,
             id: `hardcoded-${i}`,
-            createdAt: new Date(now.getTime() - i * 1000 * 60 * 60 * 24), //
+            createdAt: new Date(now.getTime() - i * 1000 * 60 * 60 * 24),
         }));
         return demoPosts;
     }
@@ -109,7 +117,7 @@ export async function getPosts(): Promise<Post[]> {
     return hardcodedPosts.map((p, i) => ({
         ...p,
         id: `hardcoded-${i}`,
-        createdAt: new Date(now.getTime() - i * 1000 * 60 * 60 * 24), //
+        createdAt: new Date(now.getTime() - i * 1000 * 60 * 60 * 24),
     }));
   }
 }
@@ -121,19 +129,23 @@ export async function addPost(post: NewPost) {
             content: post.content,
             imageUrl: post.backgroundImageUrl,
             createdAt: new Date(),
-            type: post.audioUrl ? 'audio' : 'text',
+            type: post.audioUrl ? 'audio' : (post.videoUrl ? 'video' : 'text'),
             title: post.content.substring(0, 30) + '...',
-            tags: post.audioUrl ? ['Listen'] : ['Read'],
-            duration: '3 min read',
+            tags: post.audioUrl ? ['Listen'] : (post.videoUrl ? ['Watch'] : ['Read']),
+            duration: post.audioUrl || post.videoUrl ? '0:00' : '3 min read',
         }
 
         if (post.audioUrl) {
             newPost.audioUrl = post.audioUrl;
         }
+        
+        if (post.videoUrl) {
+            newPost.videoUrl = post.videoUrl;
+        }
 
         await addDoc(postsCollection, {
             ...newPost,
-            createdAt: Timestamp.fromDate(newPost.createdAt),
+            createdAt: Timestamp.fromDate(newPost.createdAt as Date),
         });
     } catch (error) {
         console.error("Error adding post: ", error);

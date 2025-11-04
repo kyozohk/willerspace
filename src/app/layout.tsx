@@ -1,8 +1,7 @@
-import type { Metadata } from 'next';
-import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/Header';
-import './globals.css';
+    import type { Metadata } from 'next';
 import Image from 'next/image';
+import { SimpleHeader } from '@/components/SimpleHeader';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: "Willer's Space",
@@ -19,26 +18,29 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col relative">
-        <Image
-          src="/bg.png"
-          alt="Community background"
-          fill
-          className="object-cover object-center z-0 opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-background/50 to-transparent mix-blend-multiply z-10"></div>
-        <div className="absolute inset-0 bg-background/80 z-10"></div>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 z-0">
-          <Image src="/Ellipse 1.png" alt="gradient ellipse" fill className="object-contain" />
+      <body className="min-h-screen font-['Inter',sans-serif] overflow-x-hidden">
+        {/* Fixed background */}
+        <div className="fixed inset-0 z-0">
+          <Image
+            src="/bg.png"
+            alt="Background"
+            fill
+            className="object-cover object-center"
+            priority
+          />
         </div>
         
-        <div className="relative z-20 flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">{children}</main>
+        {/* Fixed header - no background */}
+        <SimpleHeader />
+        
+        {/* Scrollable content */}
+        <div className="relative z-10 min-h-screen pt-20">
+          <main className="flex-grow">
+            {children}
+          </main>
         </div>
-        <Toaster />
       </body>
     </html>
   );
