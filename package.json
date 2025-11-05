@@ -9,6 +9,7 @@
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
+    "deploy-cors": "gsutil cors set cors.json gs://willer-dc7ae.firebasestorage.app",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

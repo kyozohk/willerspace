@@ -14,6 +14,14 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Mic, StopCircle, Play, Pause } from 'lucide-react';
 import Link from 'next/link';
 
+// Format seconds to MM:SS format
+const formatTime = (seconds: number): string => {
+  if (!isFinite(seconds) || seconds < 0) return '00:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
 export default function CreateAudioPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
@@ -24,6 +32,8 @@ export default function CreateAudioPage() {
   const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -34,6 +44,65 @@ export default function CreateAudioPage() {
   
   const router = useRouter();
   const { toast } = useToast();
+
+  // Monitor recordedAudio changes
+  useEffect(() => {
+    if (recordedAudio) {
+      console.log('recordedAudio updated:', recordedAudio);
+      console.log('recordedAudio size:', recordedAudio.size, 'bytes');
+      console.log('recordedAudio type:', recordedAudio.type);
+    }
+  }, [recordedAudio]);
+  
+  // Sync audio element state with our UI
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const handlePlay = () => {
+      console.log('Audio element started playing');
+      setIsPlaying(true);
+    };
+    
+    const handlePause = () => {
+      console.log('Audio element paused');
+      setIsPlaying(false);
+    };
+    
+    const handleEnded = () => {
+      console.log('Audio playback ended');
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setProgress(0);
+    };
+    
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      const progressValue = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      setProgress(progressValue);
+    };
+    
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      console.log('Audio duration loaded:', audio.duration);
+    };
+    
+    // Add event listeners
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    
+    return () => {
+      // Clean up event listeners
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [recordedAudio]); // Re-run when recordedAudio changes
 
   useEffect(() => {
     const checkOwnership = async () => {
@@ -81,28 +150,70 @@ export default function CreateAudioPage() {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      console.log('Requesting microphone access...');
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
+      console.log('Microphone access granted:', stream);
+      
+      // Try to use a more compatible MIME type if available
+      const mimeType = [
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg',
+        'audio/wav'
+      ].find(type => MediaRecorder.isTypeSupported(type)) || 'audio/webm';
+      
+      console.log('Using MIME type for recording:', mimeType);
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType,
+        audioBitsPerSecond: 128000 // 128 kbps for better quality
+      });
+      
+      console.log('MediaRecorder created:', mediaRecorder);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
       
       mediaRecorder.ondataavailable = (e) => {
-        audioChunksRef.current.push(e.data);
+        console.log('Data available event:', e.data.size);
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
       };
       
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        console.log('Recording stopped, chunks:', audioChunksRef.current.length);
+        if (audioChunksRef.current.length === 0) {
+          console.error('No audio data captured');
+          toast({
+            title: 'Error',
+            description: 'No audio data was captured. Please try again.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        console.log('Audio blob created:', audioBlob.size, 'bytes, type:', audioBlob.type);
         setRecordedAudio(audioBlob);
         
         // Get audio duration
         const audio = new Audio();
         audio.src = URL.createObjectURL(audioBlob);
         audio.onloadedmetadata = () => {
+          console.log('Audio duration:', audio.duration);
           setDuration(audio.duration);
         };
       };
       
-      mediaRecorder.start();
+      // Request data every 500ms for smoother recording
+      mediaRecorder.start(500);
+      console.log('Recording started');
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -115,27 +226,56 @@ export default function CreateAudioPage() {
   };
 
   const stopRecording = () => {
+    console.log('Stopping recording...');
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      
-      // Stop all audio tracks
-      if (mediaRecorderRef.current.stream) {
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      try {
+        // Ensure we get the final data
+        mediaRecorderRef.current.requestData();
+        
+        // Stop recording
+        mediaRecorderRef.current.stop();
+        console.log('MediaRecorder stopped');
+        setIsRecording(false);
+        
+        // Stop all audio tracks
+        if (mediaRecorderRef.current.stream) {
+          mediaRecorderRef.current.stream.getTracks().forEach(track => {
+            track.stop();
+            console.log('Audio track stopped');
+          });
+        }
+      } catch (error) {
+        console.error('Error stopping recording:', error);
       }
+    } else {
+      console.warn('Cannot stop recording: MediaRecorder not initialized or not recording');
     }
   };
 
   const togglePlayback = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
+    console.log('Toggle playback, audioRef exists:', !!audioRef.current, 'recordedAudio exists:', !!recordedAudio);
+    if (!audioRef.current) {
+      console.warn('Audio element reference is missing');
+      return;
     }
     
-    setIsPlaying(!isPlaying);
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        console.log('Audio playback paused');
+      } else {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => console.log('Audio playback started'))
+            .catch(error => console.error('Error playing audio:', error));
+        }
+      }
+      
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error('Error toggling playback:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,8 +315,24 @@ export default function CreateAudioPage() {
       let finalAudioFile: File;
       
       if (recordedAudio) {
-        finalAudioFile = new File([recordedAudio], 'recorded-audio.wav', { type: 'audio/wav' });
+        console.log('Preparing recorded audio for upload, size:', recordedAudio.size);
+        // Create a more descriptive filename with timestamp
+        const timestamp = Date.now();
+        const filename = `recording_${timestamp}.wav`;
+        
+        // Ensure we have the correct MIME type
+        const mimeType = recordedAudio.type || 'audio/wav';
+        console.log('Using MIME type:', mimeType);
+        
+        // Create a proper File object from the Blob
+        finalAudioFile = new File([recordedAudio], filename, { 
+          type: mimeType,
+          lastModified: timestamp
+        });
+        
+        console.log('Created file object:', finalAudioFile);
       } else if (audioFile) {
+        console.log('Using uploaded audio file:', audioFile.name);
         finalAudioFile = audioFile;
       } else {
         throw new Error('No audio file available');
@@ -274,90 +430,147 @@ export default function CreateAudioPage() {
               <div className="space-y-4">
                 <Label className="text-white">Audio</Label>
                 
-                {/* Upload section */}
-                <div className="border border-dashed border-white/30 rounded-lg p-6 text-center">
-                  <Input
-                    id="audio"
-                    type="file"
-                    accept="audio/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Label htmlFor="audio" className="cursor-pointer flex flex-col items-center justify-center">
-                    <Upload className="h-10 w-10 text-white/70 mb-2" />
-                    <span className="text-white font-medium">Upload Audio File</span>
-                    <span className="text-white/70 text-sm mt-1">
-                      {audioFile ? audioFile.name : 'Click to browse or drag and drop'}
-                    </span>
-                  </Label>
-                </div>
-                
-                {/* Or divider */}
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/20" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-white/70">Or</span>
-                  </div>
-                </div>
-                
-                {/* Record section */}
-                <div className="border border-white/30 rounded-lg p-6 text-center">
-                  {isRecording ? (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="lg"
-                      className="flex items-center"
-                      onClick={stopRecording}
-                    >
-                      <StopCircle className="h-6 w-6 mr-2" />
-                      Stop Recording
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      className="border-white/30 text-white hover:bg-white/10"
-                      onClick={startRecording}
-                      disabled={!!recordedAudio}
-                    >
-                      <Mic className="h-6 w-6 mr-2" />
-                      Start Recording
-                    </Button>
-                  )}
-                  
-                  {recordedAudio && (
-                    <div className="mt-4">
-                      <audio ref={audioRef} src={URL.createObjectURL(recordedAudio)} />
+                {/* Simple two-button layout */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left side: Record/Stop button */}
+                  <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
+                    {isRecording ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="lg"
+                        className="w-full flex items-center justify-center"
+                        onClick={stopRecording}
+                      >
+                        <StopCircle className="h-6 w-6 mr-2" />
+                        Stop
+                      </Button>
+                    ) : (
                       <Button
                         type="button"
                         variant="outline"
-                        className="border-white/30 text-white hover:bg-white/10"
-                        onClick={togglePlayback}
+                        size="lg"
+                        className="w-full border-[#5B91D7] text-[#5B91D7] hover:bg-[#5B91D7]/10"
+                        onClick={startRecording}
+                        disabled={!!recordedAudio}
                       >
-                        {isPlaying ? (
-                          <Pause className="h-4 w-4 mr-2" />
-                        ) : (
-                          <Play className="h-4 w-4 mr-2" />
-                        )}
-                        {isPlaying ? 'Pause' : 'Play'} Recording
+                        <Mic className="h-6 w-6 mr-2" />
+                        Record
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Right side: Upload button */}
+                  <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
+                    <Input
+                      id="audio"
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <Label htmlFor="audio" className="w-full">
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="w-full border-blue-600 text-blue-600 hover:bg-blue-600/10"
+                      >
+                        <Upload className="h-6 w-6 mr-2" />
+                        Upload
+                      </Button>
+                    </Label>
+                  </div>
+                </div>
+                
+                {/* Audio preview with system controls */}
+                {recordedAudio && (
+                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-white font-medium">Recording Preview</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        onClick={() => {
+                          setRecordedAudio(null);
+                          setCurrentTime(0);
+                          setProgress(0);
+                          setDuration(0);
+                          setIsPlaying(false);
+                        }}
+                      >
+                        Reset
                       </Button>
                     </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex justify-end pt-4">
-                <Button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  disabled={loading || (!audioFile && !recordedAudio)}
-                >
-                  {loading ? 'Creating...' : 'Create Audio Post'}
-                </Button>
+                    
+                    {/* Audio element with system controls */}
+                    <audio 
+                      ref={audioRef} 
+                      src={URL.createObjectURL(recordedAudio)} 
+                      controls
+                      className="w-full mb-4"
+                      onLoadedMetadata={() => console.log('Audio element loaded metadata')} 
+                      onError={(e) => console.error('Audio element error:', e)}
+                    />
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="text-white/70 text-xs">
+                        {Math.round(recordedAudio.size / 1024)} KB recorded
+                      </div>
+                      
+                      <Button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={loading}
+                      >
+                        {loading ? 'Creating...' : 'Create Audio Post'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* File upload preview */}
+                {audioFile && !recordedAudio && (
+                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-white font-medium">File Upload</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        onClick={() => {
+                          setAudioFile(null);
+                          setDuration(0);
+                        }}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center mb-4">
+                      <div className="bg-white/10 rounded p-2 mr-3">
+                        <Upload className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <div className="text-white font-medium">{audioFile.name}</div>
+                        <div className="text-white/70 text-xs">{Math.round(audioFile.size / 1024)} KB</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={loading}
+                      >
+                        {loading ? 'Creating...' : 'Create Audio Post'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           </CardContent>

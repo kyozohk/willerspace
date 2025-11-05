@@ -114,10 +114,32 @@ export const createAudioContent = async (
   published: boolean = true
 ): Promise<string> => {
   try {
-    // Upload audio file to Firebase Storage
-    const storageRef = ref(storage, `audio/${userId}/${Date.now()}_${audioFile.name}`);
-    await uploadBytes(storageRef, audioFile);
+    console.log('Creating audio content with file:', audioFile);
+    
+    // Generate a safer filename
+    const timestamp = Date.now();
+    const safeFileName = audioFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const filePath = `audio/${userId}/${timestamp}_${safeFileName}`;
+    
+    console.log('Uploading to path:', filePath);
+    
+    // Upload audio file to Firebase Storage with metadata
+    const storageRef = ref(storage, filePath);
+    
+    // Add content type metadata to help with CORS
+    const metadata = {
+      contentType: audioFile.type || 'audio/wav',
+      customMetadata: {
+        'uploaded-by': userId,
+        'timestamp': timestamp.toString()
+      }
+    };
+    
+    // Upload with metadata
+    await uploadBytes(storageRef, audioFile, metadata);
     const audioUrl = await getDownloadURL(storageRef);
+    
+    console.log('Upload successful, URL:', audioUrl);
     
     const now = Timestamp.now();
     
@@ -154,15 +176,52 @@ export const createVideoContent = async (
   published: boolean = true
 ): Promise<string> => {
   try {
-    // Upload video file to Firebase Storage
-    const videoStorageRef = ref(storage, `video/${userId}/${Date.now()}_${videoFile.name}`);
-    await uploadBytes(videoStorageRef, videoFile);
-    const videoUrl = await getDownloadURL(videoStorageRef);
+    console.log('Creating video content with file:', videoFile);
+    console.log('Thumbnail file:', thumbnailFile);
     
-    // Upload thumbnail file to Firebase Storage
-    const thumbnailStorageRef = ref(storage, `thumbnails/${userId}/${Date.now()}_${thumbnailFile.name}`);
-    await uploadBytes(thumbnailStorageRef, thumbnailFile);
+    // Generate safer filenames with timestamps
+    const videoTimestamp = Date.now();
+    const videoSafeFileName = videoFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const videoFilePath = `video/${userId}/${videoTimestamp}_${videoSafeFileName}`;
+    
+    const thumbnailTimestamp = Date.now() + 1; // Ensure unique timestamp
+    const thumbnailSafeFileName = thumbnailFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const thumbnailFilePath = `thumbnails/${userId}/${thumbnailTimestamp}_${thumbnailSafeFileName}`;
+    
+    console.log('Uploading video to path:', videoFilePath);
+    console.log('Uploading thumbnail to path:', thumbnailFilePath);
+    
+    // Upload video file to Firebase Storage with metadata
+    const videoStorageRef = ref(storage, videoFilePath);
+    const videoMetadata = {
+      contentType: videoFile.type || 'video/webm',
+      customMetadata: {
+        'uploaded-by': userId,
+        'timestamp': videoTimestamp.toString(),
+        'duration': duration.toString()
+      }
+    };
+    
+    console.log('Starting video upload with metadata:', videoMetadata);
+    await uploadBytes(videoStorageRef, videoFile, videoMetadata);
+    const videoUrl = await getDownloadURL(videoStorageRef);
+    console.log('Video upload successful, URL:', videoUrl);
+    
+    // Upload thumbnail file to Firebase Storage with metadata
+    const thumbnailStorageRef = ref(storage, thumbnailFilePath);
+    const thumbnailMetadata = {
+      contentType: thumbnailFile.type || 'image/jpeg',
+      customMetadata: {
+        'uploaded-by': userId,
+        'timestamp': thumbnailTimestamp.toString(),
+        'for-video': videoFilePath
+      }
+    };
+    
+    console.log('Starting thumbnail upload with metadata:', thumbnailMetadata);
+    await uploadBytes(thumbnailStorageRef, thumbnailFile, thumbnailMetadata);
     const thumbnailUrl = await getDownloadURL(thumbnailStorageRef);
+    console.log('Thumbnail upload successful, URL:', thumbnailUrl);
     
     const now = Timestamp.now();
     

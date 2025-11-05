@@ -11,6 +11,12 @@ service firebase.storage {
       allow read: if true;
     }
     
+    // Development mode - allow all operations from localhost
+    // IMPORTANT: This should be removed in production
+    match /{allPaths=**} {
+      allow read, write: if request.headers.origin == 'http://localhost:9002';
+    }
+    
     // Audio files
     match /audio/{userId}/{fileName} {
       // Allow authenticated users to upload their own audio files
