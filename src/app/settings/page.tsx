@@ -130,7 +130,7 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold text-white mb-8">Settings</h1>
         
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Profile Settings</CardTitle>
             <CardDescription className="text-white/70">
