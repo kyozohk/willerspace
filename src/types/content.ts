@@ -18,6 +18,7 @@ export interface ReadContent extends BaseContent {
   category: string;
   readTime: number; // in minutes
   shortForm: boolean;
+  imageUrl?: string; // Optional image for the post
 }
 
 export interface ListenContent extends BaseContent {

@@ -75,10 +75,40 @@ export const createTextContent = async (
   content: string,
   category: string,
   readTime: number,
-  published: boolean = true
+  published: boolean = true,
+  imageFile?: File
 ): Promise<string> => {
   try {
     const now = Timestamp.now();
+    let imageUrl: string | undefined;
+    
+    // Upload image if provided
+    if (imageFile) {
+      console.log('Uploading image for text content:', imageFile.name);
+      
+      // Generate a safer filename with timestamp
+      const timestamp = Date.now();
+      const safeFileName = imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const filePath = `text-images/${userId}/${timestamp}_${safeFileName}`;
+      
+      // Upload image file to Firebase Storage with metadata
+      const storageRef = ref(storage, filePath);
+      
+      // Add content type metadata
+      const metadata = {
+        contentType: imageFile.type || 'image/jpeg',
+        customMetadata: {
+          'uploaded-by': userId,
+          'timestamp': timestamp.toString()
+        }
+      };
+      
+      // Upload with metadata
+      await uploadBytes(storageRef, imageFile, metadata);
+      imageUrl = await getDownloadURL(storageRef);
+      
+      console.log('Image upload successful, URL:', imageUrl);
+    }
     
     const contentData: Omit<ReadContent, "id"> = {
       type: "read",
@@ -92,7 +122,8 @@ export const createTextContent = async (
       createdAt: now.toDate(),
       updatedAt: now.toDate(),
       publishedAt: published ? now.toDate() : null,
-      published
+      published,
+      ...(imageUrl && { imageUrl }) // Add imageUrl if it exists
     };
     
     const docRef = await addDoc(collection(db, "content"), contentData);
@@ -289,6 +320,13 @@ export const deleteContent = async (contentId: string): Promise<void> => {
       const thumbnailRef = ref(storage, videoContent.thumbnailUrl);
       await deleteObject(videoRef);
       await deleteObject(thumbnailRef);
+    } else if (content.type === "read") {
+      // Delete image if it exists for text content
+      const readContent = content as ReadContent;
+      if (readContent.imageUrl) {
+        const imageRef = ref(storage, readContent.imageUrl);
+        await deleteObject(imageRef);
+      }
     }
     
     // Delete the content document

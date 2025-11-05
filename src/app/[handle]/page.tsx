@@ -104,7 +104,7 @@ export default function UserFeedPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="animate-pulse">
             <div className="h-12 w-48 bg-white/20 rounded mb-8"></div>
             <div className="h-8 w-64 bg-white/20 rounded mb-12"></div>
@@ -121,8 +121,8 @@ export default function UserFeedPage() {
 
   if (!profileUser) {
     return (
-      <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
-        <div className="max-w-5xl mx-auto text-center">
+      <div className="container mx-auto px-4 pt-24 md:pt-10 pb-24 md:pb-40">
+        <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-white mb-4">User Not Found</h1>
           <p className="text-white/70 mb-8">The user you're looking for doesn't exist.</p>
           <Button asChild>
@@ -134,13 +134,13 @@ export default function UserFeedPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
-      <div className="max-w-5xl mx-auto">
+    <div className="container mx-auto px-4 pt-2 md:pt-16 pb-24 md:pb-40">
+      <div className="max-w-4xl mx-auto">
         {/* Community Header Section */}
-        <div className="mb-12 relative overflow-hidden rounded-lg p-8" 
+        <div className=" overflow-hidden rounded-lg p-8" 
              style={{ 
               //  background: 'linear-gradient(to bottom, rgba(229,231,235,0.05), rgba(209,213,219,0.02))',
-               backgroundImage: 'url("/bg.png")',
+              //  backgroundImage: 'url("/bg.png")',
                backgroundSize: 'cover',
                backgroundPosition: 'center',
                backgroundBlendMode: 'overlay'
@@ -149,18 +149,27 @@ export default function UserFeedPage() {
             <div className="h-16 w-16 rounded-full overflow-hidden mr-4 border-2 border-white/20">
               <Image 
                 src={profileUser.photoURL || '/logo.png'} 
-                alt="Willer Community" 
+                alt={`${profileUser.firstName} ${profileUser.lastName}`} 
                 width={64} 
                 height={64} 
-                className="object-cover"
+                className="object-cover border-12 border-white/20"
               />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold text-[#4D5F71]">Willer Community</h2>
+              <h2 className="text-2xl font-semibold text-[#4D5F71]">@{handle} space</h2>
               <p className="text-[#4D5F71]">A living journal of ideas, process, and creative evolution</p>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mt-10 mb-6 bg-gradient-to-tr from-[#596086] to-[#B2778C] text-transparent bg-clip-text">Exploring the space between sound and thought</h1>
+          <div className="mt-10 mb-8 overflow-visible">
+            <h1 className="text-5xl md:text-7xl font-bold" style={{ 
+              background: 'linear-gradient(to top right, #596086, #B2778C)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block',
+              paddingBottom: '0.2em',
+              lineHeight: '1.3'
+            }}>Exploring the space between sound and thought</h1>
+          </div>
         </div>
         
         {/* Subscription Box */}
@@ -209,69 +218,84 @@ export default function UserFeedPage() {
           </div>
         </div>
         
-        {/* User Profile Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            {profileUser.firstName} {profileUser.lastName}
-          </h1>
-          <p className="text-xl text-white/70 mb-6">@{handle}</p>
-          {profileUser.bio && (
-            <p className="text-white/90 mb-6">{profileUser.bio}</p>
-          )}
-        </div>
+        {/* User Bio (if available) */}
+        {profileUser.bio && (
+          <div className="mb-8">
+            <p className="text-white/90">{profileUser.bio}</p>
+          </div>
+        )}
         
-        {/* Content Creation Buttons (Only visible to owner) */}
-        {isOwner && (
-          <div className="mb-12 flex flex-wrap gap-4">
-            <div className="relative overflow-hidden rounded-lg">
-              <Image 
-                src="/text_card_bg.png" 
-                alt="Text button background" 
-                className="absolute inset-0 w-full h-full object-cover z-0"
-                width={200}
-                height={60}
-              />
-              <Button asChild variant="outline" className="relative z-10 border-purple-600 text-purple-600 hover:bg-purple-600/10 bg-transparent">
-                <Link href={`/${handle}/create/text`}>
+        {/* Content Creation Buttons */}
+        <div className="mb-12 grid grid-cols-3" style={{ gap: '2px' }}>
+          <div className="relative overflow-hidden rounded-lg">
+            <Image 
+              src="/text_card_bg.png" 
+              alt="Text button background" 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+              width={200}
+              height={60}
+            />
+            {isOwner ? (
+              <Button asChild variant="outline" className="relative z-10 w-full border-purple-600 text-purple-600 hover:bg-purple-600/10 bg-transparent p-8">
+                <Link href={`/${handle}/create/text`} className="w-full flex items-center justify-center">
                   <PenLine className="mr-2 h-4 w-4" />
                   Write Text
                 </Link>
               </Button>
-            </div>
-            
-            <div className="relative overflow-hidden rounded-lg">
-              <Image 
-                src="/audio_card_bg.png" 
-                alt="Audio button background" 
-                className="absolute inset-0 w-full h-full object-cover z-0"
-                width={200}
-                height={60}
-              />
-              <Button asChild variant="outline" className="relative z-10 border-blue-600 text-blue-600 hover:bg-blue-600/10 bg-transparent">
-                <Link href={`/${handle}/create/audio`}>
+            ) : (
+              <Button variant="outline" className="relative z-10 w-full border-purple-600 text-purple-600 opacity-60 cursor-not-allowed p-8" disabled>
+                <PenLine className="mr-2 h-4 w-4" />
+                Write Text
+              </Button>
+            )}
+          </div>
+          
+          <div className="relative overflow-hidden rounded-lg">
+            <Image 
+              src="/audio_card_bg.png" 
+              alt="Audio button background" 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+              width={200}
+              height={60}
+            />
+            {isOwner ? (
+              <Button asChild variant="outline" className="relative z-10 w-full border-blue-600 text-blue-600 hover:bg-blue-600/10 bg-transparent p-8">
+                <Link href={`/${handle}/create/audio`} className="w-full flex items-center justify-center">
                   <Mic className="mr-2 h-4 w-4" />
                   Record Audio
                 </Link>
               </Button>
-            </div>
-            
-            <div className="relative overflow-hidden rounded-lg">
-              <Image 
-                src="/video_card_bg.png" 
-                alt="Video button background" 
-                className="absolute inset-0 w-full h-full object-cover z-0"
-                width={200}
-                height={60}
-              />
-              <Button asChild variant="outline" className="relative z-10 border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10 bg-transparent">
-                <Link href={`/${handle}/create/video`}>
+            ) : (
+              <Button variant="outline" className="relative z-10 w-full border-blue-600 text-blue-600 opacity-60 cursor-not-allowed" disabled>
+                <Mic className="mr-2 h-4 w-4" />
+                Record Audio
+              </Button>
+            )}
+          </div>
+          
+          <div className="relative overflow-hidden rounded-lg">
+            <Image 
+              src="/video_card_bg.png" 
+              alt="Video button background" 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+              width={200}
+              height={60}
+            />
+            {isOwner ? (
+              <Button asChild variant="outline" className="relative z-10 w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10 bg-transparent p-8">
+                <Link href={`/${handle}/create/video`} className="w-full flex items-center justify-center">
                   <Video className="mr-2 h-4 w-4" />
                   Record Video
                 </Link>
               </Button>
-            </div>
+            ) : (
+              <Button variant="outline" className="relative z-10 w-full border-[#FFB619] text-[#FFB619] opacity-60 cursor-not-allowed" disabled>
+                <Video className="mr-2 h-4 w-4" />
+                Record Video
+              </Button>
+            )}
           </div>
-        )}
+        </div>
         
         {/* Content Tabs */}
         {/* <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { isHandleOwner } from '@/lib/auth';
@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Upload, X, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function CreateTextPage() {
@@ -24,6 +25,9 @@ export default function CreateTextPage() {
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -55,7 +59,65 @@ export default function CreateTextPage() {
     };
     
     checkOwnership();
-  }, [user, handle, router, toast]);
+    
+    // Cleanup function for image preview URL
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [user, handle, router, toast, imagePreview]);
+
+  const triggerFileInput = () => {
+    console.log('Triggering file input click');
+    if (fileInputRef.current) {
+      console.log('File input ref exists, clicking...');
+      fileInputRef.current.click();
+    } else {
+      console.log('File input ref is null');
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Image input change event triggered', e);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Check if file is an image
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Error',
+          description: 'Please select a valid image file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'Error',
+          description: 'Image file size must be less than 5MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+  
+  const removeImage = () => {
+    setImageFile(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +150,8 @@ export default function CreateTextPage() {
         content,
         category,
         readTime,
-        true // Published by default
+        true, // Published by default
+        imageFile || undefined // Pass the image file if it exists
       );
       
       toast({
@@ -169,6 +232,56 @@ export default function CreateTextPage() {
                   className="bg-black/20 border-white/20 text-white min-h-[300px]"
                   required
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="image" className="text-white flex items-center">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Featured Image (Optional)
+                </Label>
+                
+                {imagePreview ? (
+                  <div className="relative rounded-md overflow-hidden border border-white/20">
+                    <div className="aspect-video relative">
+                      <Image 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        fill 
+                        className="object-cover" 
+                      />
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="destructive" 
+                      size="sm" 
+                      className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full" 
+                      onClick={removeImage}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="border border-dashed border-white/30 rounded-md p-6 text-center bg-black/20">
+                    <div className="flex flex-col items-center justify-center">
+                      <Upload className="h-8 w-8 mb-2 text-white/70" />
+                      <span className="text-white/70 text-sm">Click to upload an image</span>
+                      <span className="text-white/50 text-xs mt-1">PNG, JPG, GIF up to 5MB</span>
+                      
+                      <label className="mt-4 w-full">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                          ref={fileInputRef}
+                        />
+                        <div className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded cursor-pointer text-center">
+                          Choose File
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
