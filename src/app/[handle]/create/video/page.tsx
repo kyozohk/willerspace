@@ -481,7 +481,7 @@ export default function CreateVideoPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-64 bg-white/20 rounded"></div>
             <div className="h-4 w-48 bg-white/20 rounded"></div>
-            <div className="h-40 bg-white/10 rounded"></div>
+            <div className="h-40 bg-black/20 rounded"></div>
           </div>
         </div>
       </div>
@@ -502,7 +502,7 @@ export default function CreateVideoPage() {
           </Link>
         </div>
         
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create Video Content</CardTitle>
             <CardDescription className="text-white/70">
@@ -518,7 +518,7 @@ export default function CreateVideoPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter a title for your video"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                   required
                 />
               </div>
@@ -606,14 +606,14 @@ export default function CreateVideoPage() {
                 
                 {/* Recorded video preview with system controls */}
                 {recordedVideo && !isRecording && (
-                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                  <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h4 className="text-white font-medium">Video Preview</h4>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setRecordedVideo(null);
                           setRecordedThumbnail(null);
@@ -653,14 +653,14 @@ export default function CreateVideoPage() {
                 
                 {/* Uploaded video preview */}
                 {videoFile && !recordedVideo && (
-                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                  <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h4 className="text-white font-medium">File Upload</h4>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setVideoFile(null);
                           setDuration(0);
@@ -671,7 +671,7 @@ export default function CreateVideoPage() {
                     </div>
                     
                     <div className="flex items-center mb-4">
-                      <div className="bg-white/10 rounded p-2 mr-3">
+                      <div className="bg-black/20 rounded p-2 mr-3">
                         <VideoIcon className="h-5 w-5 text-[#FFB619]" />
                       </div>
                       <div>
@@ -703,7 +703,7 @@ export default function CreateVideoPage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setThumbnailFile(null);
                           setRecordedThumbnail(null);
@@ -757,7 +757,7 @@ export default function CreateVideoPage() {
                   
                   {/* Thumbnail preview */}
                   {thumbnailPreview && (
-                    <div className="mt-4 bg-white/10 rounded-lg p-4">
+                    <div className="mt-4 bg-black/20 rounded-lg p-4">
                       <h4 className="text-white font-medium mb-3">Thumbnail Preview</h4>
                       <div className="bg-black rounded-lg overflow-hidden mx-auto">
                         <img 

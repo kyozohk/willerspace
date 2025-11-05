@@ -116,7 +116,7 @@ export default function CreateTextPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-64 bg-white/20 rounded"></div>
             <div className="h-4 w-48 bg-white/20 rounded"></div>
-            <div className="h-40 bg-white/10 rounded"></div>
+            <div className="h-40 bg-black/20 rounded"></div>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function CreateTextPage() {
           </Link>
         </div>
         
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create Text Content</CardTitle>
             <CardDescription className="text-white/70">
@@ -153,7 +153,7 @@ export default function CreateTextPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter a title for your content"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                   required
                 />
               </div>
@@ -166,7 +166,7 @@ export default function CreateTextPage() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Write your content here..."
-                  className="bg-white/10 border-white/20 text-white min-h-[300px]"
+                  className="bg-black/20 border-white/20 text-white min-h-[300px]"
                   required
                 />
               </div>
@@ -179,7 +179,7 @@ export default function CreateTextPage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     placeholder="E.g., Technology, Art, Personal"
-                    className="bg-white/10 border-white/20 text-white"
+                    className="bg-black/20 border-white/20 text-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -190,7 +190,7 @@ export default function CreateTextPage() {
                     min={1}
                     value={readTime}
                     onChange={(e) => setReadTime(parseInt(e.target.value))}
-                    className="bg-white/10 border-white/20 text-white"
+                    className="bg-black/20 border-white/20 text-white"
                   />
                 </div>
               </div>

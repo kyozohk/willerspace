@@ -119,7 +119,7 @@ export default function SetupHandlePage() {
   return (
     <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
       <div className="max-w-md mx-auto">
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-white">Create Your Handle</CardTitle>
             <CardDescription className="text-center text-white/70">
@@ -136,7 +136,7 @@ export default function SetupHandlePage() {
                     id="handle"
                     value={handle}
                     onChange={handleChange}
-                    className="pl-8 bg-white/10 border-white/20 text-white"
+                    className="pl-8 bg-black/20 border-white/20 text-white"
                     placeholder="your_handle"
                     required
                   />

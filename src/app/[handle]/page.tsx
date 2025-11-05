@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { isHandleOwner } from '@/lib/auth';
@@ -30,6 +30,10 @@ export default function UserFeedPage() {
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState<Content[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+  const [email, setEmail] = useState('');
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
+  const [subscribeSuccess, setSubscribeSuccess] = useState(false);
+  const [subscribeError, setSubscribeError] = useState('');
 
   useEffect(() => {
     const fetchUserAndContent = async () => {
@@ -59,6 +63,35 @@ export default function UserFeedPage() {
     fetchUserAndContent();
   }, [handle, user]);
 
+  // Handle subscription form submission
+  const handleSubscribe = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      setSubscribeError('Please enter a valid email address');
+      return;
+    }
+    
+    setSubscribeLoading(true);
+    setSubscribeError('');
+    
+    try {
+      // In a real app, you would send this to your backend/API
+      console.log('Subscribing email:', email);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setSubscribeSuccess(true);
+      setEmail('');
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      setSubscribeError('Failed to subscribe. Please try again.');
+    } finally {
+      setSubscribeLoading(false);
+    }
+  };
+  
   // Filter content based on active tab
   const filteredContent = content.filter(item => {
     if (activeTab === 'all') return true;
@@ -77,7 +110,7 @@ export default function UserFeedPage() {
             <div className="h-8 w-64 bg-white/20 rounded mb-12"></div>
             <div className="space-y-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-40 bg-white/10 rounded"></div>
+                <div key={i} className="h-40 bg-black/20 rounded"></div>
               ))}
             </div>
           </div>
@@ -103,6 +136,79 @@ export default function UserFeedPage() {
   return (
     <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
       <div className="max-w-5xl mx-auto">
+        {/* Community Header Section */}
+        <div className="mb-12 relative overflow-hidden rounded-lg p-8" 
+             style={{ 
+              //  background: 'linear-gradient(to bottom, rgba(229,231,235,0.05), rgba(209,213,219,0.02))',
+               backgroundImage: 'url("/bg.png")',
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               backgroundBlendMode: 'overlay'
+             }}>
+          <div className="flex items-center mb-6">
+            <div className="h-16 w-16 rounded-full overflow-hidden mr-4 border-2 border-white/20">
+              <Image 
+                src={profileUser.photoURL || '/logo.png'} 
+                alt="Willer Community" 
+                width={64} 
+                height={64} 
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl font-semibold text-[#4D5F71]">Willer Community</h2>
+              <p className="text-[#4D5F71]">A living journal of ideas, process, and creative evolution</p>
+            </div>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold mt-10 mb-6 bg-gradient-to-tr from-[#596086] to-[#B2778C] text-transparent bg-clip-text">Exploring the space between sound and thought</h1>
+        </div>
+        
+        {/* Subscription Box */}
+        <div className="mb-12 relative overflow-hidden rounded-lg">
+          <Image 
+            src="/subscribe_bg.png" 
+            alt="Subscribe background" 
+            width={1200} 
+            height={200} 
+            className="w-full h-auto"
+            priority
+          />
+          <div className="absolute inset-0 p-8 flex flex-col justify-center">
+            <h3 className="text-3xl font-bold text-[#f7df1e] mb-2">I'd love you to join the community</h3>
+            <p className="text-gray-300 mb-6 max-w-2xl text-base">
+              Get exclusive content, updates, and insights delivered straight to your inbox. Members will be 
+              able to respond to content pieces, and receive private responses to what Willer writes. Willer 
+              will respond where possible.
+            </p>
+            <form onSubmit={handleSubscribe} className="w-full">
+              <div className="flex">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-grow bg-white/10 border border-white/20 rounded-l-full px-6 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  disabled={subscribeLoading || subscribeSuccess}
+                />
+                <button 
+                  type="submit" 
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-medium px-8 py-3 rounded-r-full transition-colors disabled:opacity-70"
+                  style={{ backgroundColor: '#c084fc' }}
+                  disabled={subscribeLoading || subscribeSuccess}
+                >
+                  {subscribeLoading ? 'SUBSCRIBING...' : subscribeSuccess ? 'SUBSCRIBED!' : 'SUBSCRIBE'}
+                </button>
+              </div>
+              {subscribeError && (
+                <p className="text-red-400 text-sm mt-2">{subscribeError}</p>
+              )}
+              {subscribeSuccess && (
+                <p className="text-green-400 text-sm mt-2">Successfully subscribed! Thank you for joining.</p>
+              )}
+            </form>
+          </div>
+        </div>
+        
         {/* User Profile Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-white mb-2">
@@ -169,7 +275,7 @@ export default function UserFeedPage() {
         
         {/* Content Tabs */}
         {/* <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="bg-white/10">
+          <TabsList className="bg-black/20">
             <TabsTrigger value="all">All Content</TabsTrigger>
             <TabsTrigger value="text">Text</TabsTrigger>
             <TabsTrigger value="audio">Audio</TabsTrigger>
@@ -240,7 +346,7 @@ export default function UserFeedPage() {
             })
           ) : (
             <div className="text-center py-12">
-              <div className="bg-white/10 rounded-lg p-8">
+              <div className="bg-black/20 rounded-lg p-8">
                 <div className="mx-auto h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mb-4">
                   <Plus className="h-6 w-6 text-white/70" />
                 </div>

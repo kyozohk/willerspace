@@ -64,7 +64,7 @@ export function EditableTextCard({ post, layout = 'desktop', isOwner, userId, ha
           <Button
             size="icon"
             variant="outline"
-            className="h-8 w-8 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20"
+            className="h-8 w-8 bg-black/20 backdrop-blur-md border-white/20 hover:bg-white/20"
             onClick={handleEdit}
           >
             <Edit className="h-4 w-4 text-white" />
@@ -72,7 +72,7 @@ export function EditableTextCard({ post, layout = 'desktop', isOwner, userId, ha
           <Button
             size="icon"
             variant="outline"
-            className="h-8 w-8 bg-white/10 backdrop-blur-md border-white/20 hover:bg-red-500/20"
+            className="h-8 w-8 bg-black/20 backdrop-blur-md border-white/20 hover:bg-red-500/20"
             onClick={() => setIsDeleteDialogOpen(true)}
           >
             <Trash className="h-4 w-4 text-white" />
@@ -81,7 +81,7 @@ export function EditableTextCard({ post, layout = 'desktop', isOwner, userId, ha
       )}
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white/10 backdrop-blur-md border-white/20">
+        <AlertDialogContent className="bg-black/20 backdrop-blur-md border-white/20">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Content</AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
@@ -89,7 +89,7 @@ export function EditableTextCard({ post, layout = 'desktop', isOwner, userId, ha
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent text-white border-white/20 hover:bg-white/10">
+            <AlertDialogCancel className="bg-transparent text-white border-white/20 hover:bg-black/20">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

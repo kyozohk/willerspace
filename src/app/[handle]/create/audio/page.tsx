@@ -37,10 +37,15 @@ export default function CreateAudioPage() {
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [audioLevel, setAudioLevel] = useState(0); // Add audio level state
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioDataRef = useRef<Uint8Array | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   
   const router = useRouter();
   const { toast } = useToast();
@@ -59,9 +64,14 @@ export default function CreateAudioPage() {
     const audio = audioRef.current;
     if (!audio) return;
     
+    // Set volume to maximum
+    audio.volume = 1.0;
+    
     const handlePlay = () => {
       console.log('Audio element started playing');
       setIsPlaying(true);
+      // Ensure volume is at maximum when playing
+      audio.volume = 1.0;
     };
     
     const handlePause = () => {
@@ -85,6 +95,8 @@ export default function CreateAudioPage() {
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
       console.log('Audio duration loaded:', audio.duration);
+      // Set volume to maximum after metadata is loaded
+      audio.volume = 1.0;
     };
     
     // Add event listeners
@@ -93,6 +105,16 @@ export default function CreateAudioPage() {
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    
+    // Set volume to maximum immediately and after a short delay
+    // (some browsers need this)
+    audio.volume = 1.0;
+    setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.volume = 1.0;
+        console.log('Setting audio volume to maximum');
+      }
+    }, 500);
     
     return () => {
       // Clean up event listeners
@@ -155,10 +177,57 @@ export default function CreateAudioPage() {
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true
+          autoGainControl: false, // Disable auto gain to prevent quiet recordings
+          channelCount: 1, // Mono recording for better compatibility
+          sampleRate: 44100 // Standard sample rate
         } 
       });
       console.log('Microphone access granted:', stream);
+      
+      // Set up audio visualization using a simpler approach
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+        
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        analyserRef.current = analyser;
+        
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        
+        // Create a script processor for audio processing
+        const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+        scriptProcessor.connect(audioContext.destination);
+        source.connect(scriptProcessor);
+        
+        // Process audio data
+        scriptProcessor.onaudioprocess = (event) => {
+          if (!isRecording) return;
+          
+          const input = event.inputBuffer.getChannelData(0);
+          let sum = 0;
+          
+          // Calculate RMS (root mean square) volume
+          for (let i = 0; i < input.length; i++) {
+            sum += input[i] * input[i];
+          }
+          
+          const rms = Math.sqrt(sum / input.length);
+          // Convert to a 0-100 scale with some amplification
+          const scaledLevel = Math.min(100, Math.max(0, rms * 400));
+          
+          setAudioLevel(scaledLevel);
+          
+          // Log audio level occasionally for debugging
+          if (Math.random() < 0.05) { // Log roughly every 20 frames
+            console.log('Current audio level:', scaledLevel);
+          }
+        };
+      } catch (err) {
+        console.error('Error setting up audio visualization:', err);
+        // Continue with recording even if visualization fails
+      }
       
       // Try to use a more compatible MIME type if available
       const mimeType = [
@@ -209,10 +278,17 @@ export default function CreateAudioPage() {
           console.log('Audio duration:', audio.duration);
           setDuration(audio.duration);
         };
+        
+        // Clean up visualization
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+        setAudioLevel(0);
       };
       
-      // Request data every 500ms for smoother recording
-      mediaRecorder.start(500);
+      // Request data every 250ms for smoother recording
+      mediaRecorder.start(250);
       console.log('Recording started');
       setIsRecording(true);
     } catch (error) {
@@ -242,6 +318,19 @@ export default function CreateAudioPage() {
           mediaRecorderRef.current.stream.getTracks().forEach(track => {
             track.stop();
             console.log('Audio track stopped');
+          });
+        }
+        
+        // Clean up audio visualization
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+        
+        // Close audio context if it exists
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close().catch(err => {
+            console.error('Error closing audio context:', err);
           });
         }
       } catch (error) {
@@ -373,7 +462,7 @@ export default function CreateAudioPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-64 bg-white/20 rounded"></div>
             <div className="h-4 w-48 bg-white/20 rounded"></div>
-            <div className="h-40 bg-white/10 rounded"></div>
+            <div className="h-40 bg-black/20 rounded"></div>
           </div>
         </div>
       </div>
@@ -394,7 +483,7 @@ export default function CreateAudioPage() {
           </Link>
         </div>
         
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create Audio Content</CardTitle>
             <CardDescription className="text-white/70">
@@ -410,7 +499,7 @@ export default function CreateAudioPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter a title for your audio"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                   required
                 />
               </div>
@@ -423,7 +512,7 @@ export default function CreateAudioPage() {
                   value={podcastName}
                   onChange={(e) => setPodcastName(e.target.value)}
                   placeholder="Enter podcast name if applicable"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                 />
               </div>
               
@@ -434,30 +523,49 @@ export default function CreateAudioPage() {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Left side: Record/Stop button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
-                    {isRecording ? (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="lg"
-                        className="w-full flex items-center justify-center"
-                        onClick={stopRecording}
-                      >
-                        <StopCircle className="h-6 w-6 mr-2" />
-                        Stop
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        className="w-full border-[#5B91D7] text-[#5B91D7] hover:bg-[#5B91D7]/10"
-                        onClick={startRecording}
-                        disabled={!!recordedAudio}
-                      >
-                        <Mic className="h-6 w-6 mr-2" />
-                        Record
-                      </Button>
-                    )}
+                    <div className="space-y-4 w-full">
+                      {isRecording ? (
+                        <>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="lg"
+                            className="w-full flex items-center justify-center"
+                            onClick={stopRecording}
+                          >
+                            <StopCircle className="h-6 w-6 mr-2" />
+                            Stop Recording
+                          </Button>
+                          
+                          {/* Audio level visualization */}
+                          <div className="mt-2">
+                            <div className="h-2 bg-black/40 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-red-500 transition-all duration-100" 
+                                style={{ width: `${audioLevel}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between text-xs text-white/70 mt-1">
+                              <span>0</span>
+                              <span>Recording... {audioLevel > 5 ? '🎤' : '🔇'}</span>
+                              <span>100</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="lg"
+                          className="w-full border-[#5B91D7] text-[#5B91D7] hover:bg-[#5B91D7]/10"
+                          onClick={startRecording}
+                          disabled={!!recordedAudio}
+                        >
+                          <Mic className="h-6 w-6 mr-2" />
+                          Record
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Right side: Upload button */}
@@ -485,14 +593,14 @@ export default function CreateAudioPage() {
                 
                 {/* Audio preview with system controls */}
                 {recordedAudio && (
-                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                  <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h4 className="text-white font-medium">Recording Preview</h4>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setRecordedAudio(null);
                           setCurrentTime(0);
@@ -505,15 +613,28 @@ export default function CreateAudioPage() {
                       </Button>
                     </div>
                     
-                    {/* Audio element with system controls */}
-                    <audio 
-                      ref={audioRef} 
-                      src={URL.createObjectURL(recordedAudio)} 
-                      controls
-                      className="w-full mb-4"
-                      onLoadedMetadata={() => console.log('Audio element loaded metadata')} 
-                      onError={(e) => console.error('Audio element error:', e)}
-                    />
+                    {/* Audio element with enhanced controls */}
+                    <div className="mb-4 bg-black/30 rounded-lg p-3">
+                      <audio 
+                        ref={audioRef} 
+                        src={URL.createObjectURL(recordedAudio)} 
+                        controls
+                        className="w-full"
+                        onLoadedMetadata={() => {
+                          console.log('Audio element loaded metadata');
+                          // Try to set volume to maximum
+                          if (audioRef.current) {
+                            audioRef.current.volume = 1.0;
+                          }
+                        }} 
+                        onError={(e) => console.error('Audio element error:', e)}
+                      />
+                      <div className="mt-2 flex justify-between text-xs text-white/70">
+                        <span>{formatTime(currentTime)}</span>
+                        <span>Volume at maximum for playback</span>
+                        <span>{formatTime(duration)}</span>
+                      </div>
+                    </div>
                     
                     <div className="flex justify-between items-center">
                       <div className="text-white/70 text-xs">
@@ -533,14 +654,14 @@ export default function CreateAudioPage() {
                 
                 {/* File upload preview */}
                 {audioFile && !recordedAudio && (
-                  <div className="mt-4 bg-white/10 rounded-lg p-4">
+                  <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h4 className="text-white font-medium">File Upload</h4>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setAudioFile(null);
                           setDuration(0);
@@ -551,7 +672,7 @@ export default function CreateAudioPage() {
                     </div>
                     
                     <div className="flex items-center mb-4">
-                      <div className="bg-white/10 rounded p-2 mr-3">
+                      <div className="bg-black/20 rounded p-2 mr-3">
                         <Upload className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>

@@ -113,7 +113,7 @@ export default function SettingsPage() {
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-64 bg-white/20 rounded"></div>
             <div className="h-4 w-48 bg-white/20 rounded"></div>
-            <div className="h-40 bg-white/10 rounded"></div>
+            <div className="h-40 bg-black/20 rounded"></div>
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function SettingsPage() {
                   />
                   <Label
                     htmlFor="profilePicture"
-                    className="cursor-pointer bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-md"
+                    className="cursor-pointer bg-black/20 hover:bg-white/20 text-white py-2 px-4 rounded-md"
                   >
                     Change Profile Picture
                   </Label>
@@ -173,7 +173,7 @@ export default function SettingsPage() {
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="bg-white/10 border-white/20 text-white"
+                    className="bg-black/20 border-white/20 text-white"
                     required
                   />
                 </div>
@@ -183,7 +183,7 @@ export default function SettingsPage() {
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="bg-white/10 border-white/20 text-white"
+                    className="bg-black/20 border-white/20 text-white"
                     required
                   />
                 </div>
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="Tell others about yourself..."
-                  className="bg-white/10 border-white/20 text-white min-h-[120px]"
+                  className="bg-black/20 border-white/20 text-white min-h-[120px]"
                 />
               </div>
               
@@ -206,12 +206,12 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label htmlFor="handle" className="text-white">Handle</Label>
                   <div className="flex items-center">
-                    <span className="bg-white/10 border border-white/20 rounded-l-md py-2 px-3 text-white">@</span>
+                    <span className="bg-black/20 border border-white/20 rounded-l-md py-2 px-3 text-white">@</span>
                     <Input
                       id="handle"
                       value={profile.handle}
                       readOnly
-                      className="bg-white/10 border-white/20 text-white rounded-l-none"
+                      className="bg-black/20 border-white/20 text-white rounded-l-none"
                     />
                   </div>
                   <p className="text-xs text-white/50">Your handle cannot be changed</p>
@@ -225,7 +225,7 @@ export default function SettingsPage() {
                   id="email"
                   value={user.email || ''}
                   readOnly
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                 />
                 <p className="text-xs text-white/50">Contact support to change your email</p>
               </div>

@@ -28,7 +28,7 @@ export default function Home() {
           <div className="animate-pulse space-y-4">
             <div className="h-12 w-48 bg-white/20 rounded mx-auto"></div>
             <div className="h-8 w-64 bg-white/20 rounded mx-auto"></div>
-            <div className="h-40 bg-white/10 rounded"></div>
+            <div className="h-40 bg-black/20 rounded"></div>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default function Home() {
               </Link>
             </Button>
             
-            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-black/20" asChild>
               <Link href="/signin">
                 <LogIn className="mr-2 h-5 w-5" />
                 Sign In
@@ -85,7 +85,7 @@ export default function Home() {
         {/* Feature cards */}
         <div className="grid md:grid-cols-3 gap-8 mt-24">
           {/* Text content */}
-          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <Card className="bg-black/20 backdrop-blur-md border-white/20">
             <CardHeader>
               <CardTitle className="text-white">Write</CardTitle>
               <CardDescription className="text-white/70">
@@ -105,7 +105,7 @@ export default function Home() {
           </Card>
           
           {/* Audio content */}
-          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <Card className="bg-black/20 backdrop-blur-md border-white/20">
             <CardHeader>
               <CardTitle className="text-white">Record</CardTitle>
               <CardDescription className="text-white/70">
@@ -125,7 +125,7 @@ export default function Home() {
           </Card>
           
           {/* Video content */}
-          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <Card className="bg-black/20 backdrop-blur-md border-white/20">
             <CardHeader>
               <CardTitle className="text-white">Film</CardTitle>
               <CardDescription className="text-white/70">

@@ -63,7 +63,7 @@ export default function SignInPage() {
   return (
     <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
       <div className="max-w-md mx-auto">
-        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+        <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-white">Sign In</CardTitle>
             <CardDescription className="text-center text-white/70">
@@ -81,7 +81,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                 />
               </div>
               <div className="space-y-2">
@@ -98,7 +98,7 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-black/20 border-white/20 text-white"
                 />
               </div>
               <Button
@@ -122,7 +122,7 @@ export default function SignInPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full border-white/20 text-white hover:bg-white/10"
+              className="w-full border-white/20 text-white hover:bg-black/20"
               onClick={handleGoogleSignIn}
               disabled={loading}
             >

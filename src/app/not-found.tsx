@@ -20,7 +20,7 @@ export default function NotFound() {
             </Link>
           </Button>
           
-          <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" asChild>
+          <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-black/20" asChild>
             <Link href="/explore">
               <Search className="mr-2 h-5 w-5" />
               Explore Content
