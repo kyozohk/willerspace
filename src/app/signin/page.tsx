@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { signIn, signInWithGoogle, sendPasswordResetEmail } from '@/lib/auth'; // Assuming sendPasswordResetEmail is exported from your auth lib
+import { signIn, signInWithGoogle, sendPasswordReset } from '@/lib/auth';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // State for overall loading (sign-in, etc.)
+  const [loading, setLoading] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -76,8 +77,8 @@ export default function SignInPage() {
       return;
     }
     try {
-      setLoading(true); // Set loading for reset email
-      await sendPasswordResetEmail(resetEmail);
+      setResettingPassword(true);
+      await sendPasswordReset(resetEmail);
       toast({
         title: 'Success',
         description: 'Password reset email sent. Please check your inbox.',
@@ -86,7 +87,7 @@ export default function SignInPage() {
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
-      setLoading(false); // Reset loading
+      setResettingPassword(false);
     }
   };
 
@@ -146,9 +147,9 @@ export default function SignInPage() {
                         <Button
                           onClick={handleForgotPassword}
                           className="bg-purple-600 hover:bg-purple-700 text-white"
-                          disabled={loading || !resetEmail} // Disable when loading or resetEmail is empty
+                          disabled={resettingPassword || !resetEmail}
                         >
-                          {loading ? 'Sending...' : 'Send Reset Link'} {/* Change button text during loading */}
+                          {resettingPassword ? 'Sending...' : 'Send Reset Link'}
                         </Button>
                       </AlertDialogFooter>
                     </AlertDialogContent>

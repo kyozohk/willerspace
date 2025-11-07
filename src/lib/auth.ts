@@ -110,10 +110,10 @@ export const signOut = async (): Promise<void> => {
 export const sendPasswordReset = async (email: string): Promise<void> => {
   try {
     const auth = getAuth(app);
- await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email);
   } catch (error) {
     console.error("Error sending password reset email:", error);
- throw error;
+    throw error;
   }
 };
 
@@ -218,7 +218,7 @@ export const useAuth = () => {
     return unsubscribe;
   }, [router]);
 
-  return { user, profile, loading, sendPasswordReset };
+  return { user, profile, loading };
 };
 
 // Check if the user is an admin (will@kyozo.com)
