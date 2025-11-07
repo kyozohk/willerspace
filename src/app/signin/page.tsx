@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { signIn, signInWithGoogle } from '@/lib/auth';
+import { signIn, signInWithGoogle, sendPasswordResetEmail } from '@/lib/auth'; // Assuming sendPasswordResetEmail is exported from your auth lib
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +16,10 @@ import { useToast } from '@/hooks/use-toast';
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // State for overall loading (sign-in, etc.)
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -60,6 +66,30 @@ export default function SignInPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!resetEmail) {
+      toast({
+        title: 'Error',
+        description: 'Please enter your email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    try {
+      setLoading(true); // Set loading for reset email
+      await sendPasswordResetEmail(resetEmail);
+      toast({
+        title: 'Success',
+        description: 'Password reset email sent. Please check your inbox.',
+      });
+      setIsResetDialogOpen(false);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setLoading(false); // Reset loading
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 pt-24 md:pt-36 pb-24 md:pb-40">
       <div className="max-w-md mx-auto">
@@ -87,9 +117,42 @@ export default function SignInPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-white">Password</Label>
-                  <Link href="/forgot-password" className="text-sm text-purple-300 hover:text-purple-200">
-                    Forgot password?
-                  </Link>
+                  <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                    <AlertDialogTrigger asChild>
+                      <button type="button" className="text-sm text-purple-300 hover:text-purple-200">
+                        Forgot password?
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-black/30 backdrop-blur-md border-white/20 text-white">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-white">Reset Password</AlertDialogTitle>
+                        <AlertDialogDescription className="text-white/70">
+                          Enter your email address to receive a password reset link.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="space-y-2">
+                        <Label htmlFor="resetEmail" className="text-white">Email</Label>
+                        <Input
+                          id="resetEmail"
+                          type="email"
+                          placeholder="name@example.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          className="bg-black/20 border-white/20 text-white"
+                        />
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="border-white/20 text-white">Cancel</AlertDialogCancel>
+                        <Button
+                          onClick={handleForgotPassword}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          disabled={loading || !resetEmail} // Disable when loading or resetEmail is empty
+                        >
+                          {loading ? 'Sending...' : 'Send Reset Link'} {/* Change button text during loading */}
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
                 <Input
                   id="password"

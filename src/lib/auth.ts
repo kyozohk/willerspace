@@ -5,7 +5,9 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile,
+ updateProfile,
+ getAuth,
+ sendPasswordResetEmail,
   User
 } from "firebase/auth";
 import { auth, db } from "./firebase";
@@ -13,6 +15,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { UserProfile } from "../types/user";
+import { app } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 
 // Sign up with email and password
@@ -100,6 +103,17 @@ export const signOut = async (): Promise<void> => {
   } catch (error) {
     console.error("Error signing out:", error);
     throw error;
+  }
+};
+
+// Send password reset email
+export const sendPasswordReset = async (email: string): Promise<void> => {
+  try {
+    const auth = getAuth(app);
+ await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+ throw error;
   }
 };
 
@@ -204,7 +218,7 @@ export const useAuth = () => {
     return unsubscribe;
   }, [router]);
 
-  return { user, profile, loading };
+  return { user, profile, loading, sendPasswordReset };
 };
 
 // Check if the user is an admin (will@kyozo.com)
