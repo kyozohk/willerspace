@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { Header } from '@/components/Header';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { MembershipProvider } from '@/contexts/MembershipContext';
-import { JoinCTAWrapper } from '@/components/JoinCTAWrapper';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
@@ -39,7 +38,6 @@ export default function RootLayout({
         {/* Wrap everything in AuthProvider and MembershipProvider */}
         <AuthProvider>
           <MembershipProvider>
-            <JoinCTAWrapper>
               {/* Fixed header - no background */}
               <Header />
               
@@ -49,7 +47,6 @@ export default function RootLayout({
                   {children}
                 </main>
               </div>
-            </JoinCTAWrapper>
             
             {/* Toast notifications */}
             <Toaster />
