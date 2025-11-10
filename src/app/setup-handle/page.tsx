@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function SetupHandlePage() {
   const [handle, setHandle] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [headline, setHeadline] = useState('');
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -80,7 +82,7 @@ export default function SetupHandlePage() {
       await reserveHandle(user.uid, handle);
       
       // Then update the user's profile - skip existence check since we just reserved it
-      await updateUserHandle(user.uid, handle, true);
+      await updateUserHandle(user.uid, handle, true, tagline, headline);
       
       toast({
         title: 'Success',
@@ -169,6 +171,39 @@ export default function SetupHandlePage() {
                     This handle is already taken.
                   </p>
                 )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="tagline" className="text-white">Tagline</Label>
+                <Input
+                  id="tagline"
+                  value={tagline}
+                  onChange={(e) => setTagline(e.target.value)}
+                  className="bg-black/20 border-white/20 text-white"
+                  placeholder="Exploring the space between sound and thought"
+                />
+                <p className="text-xs text-white/70">
+                  A short phrase that describes you or your content.
+                </p>
+                {!tagline && (
+                  <p className="text-[#4D5F71] italic opacity-70">
+                    Add a tagline in your profile settings
+                  </p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="headline" className="text-white">Headline</Label>
+                <Input
+                  id="headline"
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                  className="bg-black/20 border-white/20 text-white"
+                  placeholder="Your main headline text"
+                />
+                <p className="text-xs text-white/70">
+                  A headline that appears prominently on your profile.
+                </p>
               </div>
 
               <Button
