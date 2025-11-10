@@ -51,8 +51,24 @@ export default function UserFeedPage() {
           const ownerStatus = user ? await isHandleOwner(user.uid, handle) : false;
           setIsOwner(ownerStatus);
           
-          // Fetch user content based on membership status
-          const userContent = await getUserContent(userProfile.uid, isMember);
+          // Determine if the current user should see all content
+          // Only the owner of the profile or members should see private content
+          const canSeeAllContent = ownerStatus || isMember;
+          console.log('Content visibility:', { 
+            currentUser: user?.uid, 
+            profileUser: userProfile.uid, 
+            isOwner: ownerStatus, 
+            isMember, 
+            canSeeAllContent 
+          });
+          
+          // Double-check ownership by comparing UIDs directly
+          const isDirectOwner = user?.uid === userProfile.uid;
+          
+          // Fetch user content based on visibility permissions
+          // Use direct ownership check as a fallback
+          const userContent = await getUserContent(userProfile.uid, canSeeAllContent || isDirectOwner);
+          console.log('Retrieved content count:', userContent.length, 'isDirectOwner:', isDirectOwner);
           setContent(userContent);
         }
       } catch (error) {
@@ -147,31 +163,51 @@ export default function UserFeedPage() {
                backgroundPosition: 'center',
                backgroundBlendMode: 'overlay'
              }}>
-          <div className="flex items-center mb-6">
-            <div className="h-16 w-16 rounded-full overflow-hidden mr-4 border-2 border-white/20">
-              <Image 
-                src={profileUser.photoURL || '/logo.png'} 
-                alt={`${profileUser.firstName} ${profileUser.lastName}`} 
-                width={64} 
-                height={64} 
-                className="object-cover border-12 border-white/20"
-              />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-full overflow-hidden w-16 h-16 bg-white/10 border-2 border-white">
+                <Image 
+                  src={profileUser.photoURL || '/logo.png'} 
+                  alt={`${profileUser.firstName} ${profileUser.lastName}`} 
+                  width={64} 
+                  height={64} 
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-[#4D5F71]">@{handle}</h2>
+                {profileUser.tagline ? (
+                  <p className="text-[#4D5F71]">{profileUser.tagline}</p>
+                ) : isOwner ? (
+                  <p className="text-[#4D5F71] italic opacity-70">Add a tagline in your profile settings</p>
+                ) : null}
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-[#4D5F71]">@{handle} space</h2>
-              <p className="text-[#4D5F71]">A living journal of ideas, process, and creative evolution</p>
+            
+            {isOwner && (
+              <Link href={`/${handle}/settings`} className="text-sm text-white/70 hover:text-white bg-black/30 px-3 py-1 rounded-full">
+                Edit Profile
+              </Link>
+            )}
+          </div>
+          {profileUser.headline ? (
+            <div className="mt-10 mb-8 overflow-visible">
+              <h1 className="text-5xl md:text-7xl font-bold" style={{ 
+                background: 'linear-gradient(to top right, #596086, #B2778C)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block',
+                paddingBottom: '0.2em',
+                lineHeight: '1.3'
+              }}>{profileUser.headline}</h1>
             </div>
-          </div>
-          <div className="mt-10 mb-8 overflow-visible">
-            <h1 className="text-5xl md:text-7xl font-bold" style={{ 
-              background: 'linear-gradient(to top right, #596086, #B2778C)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              display: 'inline-block',
-              paddingBottom: '0.2em',
-              lineHeight: '1.3'
-            }}>Exploring the space between sound and thought</h1>
-          </div>
+          ) : isOwner ? (
+            <div className="mt-10 mb-8 overflow-visible">
+              <h1 className="text-3xl md:text-5xl font-bold text-[#4D5F71]/70 italic">
+                Add a headline in your profile settings
+              </h1>
+            </div>
+          ) : null}
         </div>
         
         {/* Subscription Box */}
@@ -316,14 +352,20 @@ export default function UserFeedPage() {
               if (item.type === 'read') {
                 const post = adaptContent(item, handle as string) as Post;
                 return isOwner ? (
-                  <EditableTextCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                    isOwner={isOwner}
-                    userId={user?.uid || ''}
-                    handle={handle as string}
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <EditableTextCard 
+                      post={post} 
+                      layout="desktop"
+                      isOwner={isOwner}
+                      userId={user?.uid || ''}
+                      handle={handle as string}
+                    />
+                  </div>
                 ) : (
                   <div key={item.id} className="relative">
                     {!item.published && (
@@ -340,14 +382,20 @@ export default function UserFeedPage() {
               } else if (item.type === 'listen') {
                 const post = adaptContent(item, handle as string) as AudioPost;
                 return isOwner ? (
-                  <EditableVoiceCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                    isOwner={isOwner}
-                    userId={user?.uid || ''}
-                    handle={handle as string}
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <EditableVoiceCard 
+                      post={post} 
+                      layout="desktop"
+                      isOwner={isOwner}
+                      userId={user?.uid || ''}
+                      handle={handle as string}
+                    />
+                  </div>
                 ) : (
                   <div key={item.id} className="relative">
                     {!item.published && (
@@ -364,14 +412,20 @@ export default function UserFeedPage() {
               } else if (item.type === 'watch') {
                 const post = adaptContent(item, handle as string) as VideoPost;
                 return isOwner ? (
-                  <EditableVideoCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                    isOwner={isOwner}
-                    userId={user?.uid || ''}
-                    handle={handle as string}
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-[#FFB619] text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <EditableVideoCard 
+                      post={post} 
+                      layout="desktop"
+                      isOwner={isOwner}
+                      userId={user?.uid || ''}
+                      handle={handle as string}
+                    />
+                  </div>
                 ) : (
                   <div key={item.id} className="relative">
                     {!item.published && (
