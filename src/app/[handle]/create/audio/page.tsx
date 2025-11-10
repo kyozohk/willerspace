@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -46,6 +47,7 @@ export default function CreateAudioPage() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioDataRef = useRef<Uint8Array | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const router = useRouter();
   const { toast } = useToast();
@@ -124,7 +126,7 @@ export default function CreateAudioPage() {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, [recordedAudio]); // Re-run when recordedAudio changes
+  }, [recordedAudio, audioFile]); // Re-run when recordedAudio or audioFile changes
 
   useEffect(() => {
     const checkOwnership = async () => {
@@ -559,7 +561,7 @@ export default function CreateAudioPage() {
                           size="lg"
                           className="w-full border-[#5B91D7] text-[#5B91D7] hover:bg-[#5B91D7]/10"
                           onClick={startRecording}
-                          disabled={!!recordedAudio}
+                          disabled={!!recordedAudio || !!audioFile}
                         >
                           <Mic className="h-6 w-6 mr-2" />
                           Record
@@ -573,29 +575,31 @@ export default function CreateAudioPage() {
                     <Input
                       id="audio"
                       type="file"
+                      ref={fileInputRef}
                       accept="audio/*"
                       onChange={handleFileChange}
                       className="hidden"
+                      disabled={!!recordedAudio}
                     />
-                    <Label htmlFor="audio" className="w-full">
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        className="w-full border-blue-600 text-blue-600 hover:bg-blue-600/10"
-                      >
-                        <Upload className="h-6 w-6 mr-2" />
-                        Upload
-                      </Button>
-                    </Label>
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      className="w-full border-blue-600 text-blue-600 hover:bg-blue-600/10"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={!!recordedAudio}
+                    >
+                      <Upload className="h-6 w-6 mr-2" />
+                      Upload
+                    </Button>
                   </div>
                 </div>
                 
                 {/* Audio preview with system controls */}
-                {recordedAudio && (
+                {(recordedAudio || audioFile) && (
                   <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
-                      <h4 className="text-white font-medium">Recording Preview</h4>
+                      <h4 className="text-white font-medium">{recordedAudio ? "Recording Preview" : "Upload Preview"}</h4>
                       <Button
                         type="button"
                         variant="ghost"
@@ -603,26 +607,25 @@ export default function CreateAudioPage() {
                         className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setRecordedAudio(null);
+                          setAudioFile(null);
                           setCurrentTime(0);
                           setProgress(0);
                           setDuration(0);
                           setIsPlaying(false);
+                          if(fileInputRef.current) fileInputRef.current.value = "";
                         }}
                       >
                         Reset
                       </Button>
                     </div>
                     
-                    {/* Audio element with enhanced controls */}
                     <div className="mb-4 bg-black/30 rounded-lg p-3">
                       <audio 
                         ref={audioRef} 
-                        src={URL.createObjectURL(recordedAudio)} 
+                        src={recordedAudio ? URL.createObjectURL(recordedAudio) : audioFile ? URL.createObjectURL(audioFile) : ''} 
                         controls
                         className="w-full"
                         onLoadedMetadata={() => {
-                          console.log('Audio element loaded metadata');
-                          // Try to set volume to maximum
                           if (audioRef.current) {
                             audioRef.current.volume = 1.0;
                           }
@@ -638,7 +641,7 @@ export default function CreateAudioPage() {
                     
                     <div className="flex justify-between items-center">
                       <div className="text-white/70 text-xs">
-                        {Math.round(recordedAudio.size / 1024)} KB recorded
+                        {recordedAudio ? `${Math.round(recordedAudio.size / 1024)} KB recorded` : audioFile ? `${audioFile.name} (${Math.round(audioFile.size / 1024)} KB)` : ''}
                       </div>
                       
                       <Button
@@ -652,46 +655,6 @@ export default function CreateAudioPage() {
                   </div>
                 )}
                 
-                {/* File upload preview */}
-                {audioFile && !recordedAudio && (
-                  <div className="mt-4 bg-black/20 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="text-white font-medium">File Upload</h4>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-white/70 hover:text-white hover:bg-black/20"
-                        onClick={() => {
-                          setAudioFile(null);
-                          setDuration(0);
-                        }}
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                    
-                    <div className="flex items-center mb-4">
-                      <div className="bg-black/20 rounded p-2 mr-3">
-                        <Upload className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="text-white font-medium">{audioFile.name}</div>
-                        <div className="text-white/70 text-xs">{Math.round(audioFile.size / 1024)} KB</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={loading}
-                      >
-                        {loading ? 'Creating...' : 'Create Audio Post'}
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             </form>
           </CardContent>
@@ -700,3 +663,5 @@ export default function CreateAudioPage() {
     </div>
   );
 }
+
+    

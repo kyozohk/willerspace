@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -56,6 +57,7 @@ export default function CreateVideoPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
   
   const router = useRouter();
   const { toast } = useToast();
@@ -281,16 +283,17 @@ export default function CreateVideoPage() {
   };
 
   const captureThumbnail = () => {
-    if (!videoPreviewRef.current && !videoRef.current) return;
-    
-    const canvas = document.createElement('canvas');
-    const video = videoPreviewRef.current || videoRef.current;
+    const video = videoRef.current || videoPreviewRef.current;
     
     if (!video) return;
     
+    const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
     canvas.toBlob((blob) => {
       if (blob) {
@@ -361,32 +364,10 @@ export default function CreateVideoPage() {
       
       if (recordedVideo) {
         console.log('Using recorded video, size:', recordedVideo.size);
-        // Create a more descriptive filename with timestamp
         const timestamp = Date.now();
-        const filename = `recording_${timestamp}.webm`;
-        
-        // Ensure we have the correct MIME type
         const mimeType = recordedVideo.type || 'video/webm';
-        console.log('Using video MIME type:', mimeType);
-        
-        try {
-          // Create a proper File object from the Blob with a simple name
-          // Complex filenames can cause issues with CORS and URL encoding
-          finalVideoFile = new File([recordedVideo], `video_${timestamp}.webm`, { 
-            type: mimeType,
-            lastModified: timestamp
-          });
-          
-          console.log('Created video file object:', finalVideoFile);
-        } catch (error) {
-          console.error('Error creating File from Blob:', error);
-          toast({
-            title: 'Error',
-            description: 'Failed to process recorded video. Please try uploading a video file instead.',
-            variant: 'destructive',
-          });
-          throw error;
-        }
+        finalVideoFile = new File([recordedVideo], `video_${timestamp}.webm`, { type: mimeType, lastModified: timestamp });
+        console.log('Created video file object:', finalVideoFile);
       } else if (videoFile) {
         console.log('Using uploaded video file:', videoFile.name);
         finalVideoFile = videoFile;
@@ -396,27 +377,9 @@ export default function CreateVideoPage() {
       
       if (recordedThumbnail) {
         console.log('Using captured thumbnail, size:', recordedThumbnail.size);
-        // Create a more descriptive filename with timestamp
         const timestamp = Date.now();
-        
-        try {
-          // Create a proper File object from the Blob with a simple name
-          // Complex filenames can cause issues with CORS and URL encoding
-          finalThumbnailFile = new File([recordedThumbnail], `thumb_${timestamp}.jpg`, { 
-            type: 'image/jpeg',
-            lastModified: timestamp
-          });
-          
-          console.log('Created thumbnail file object:', finalThumbnailFile);
-        } catch (error) {
-          console.error('Error creating thumbnail File from Blob:', error);
-          toast({
-            title: 'Error',
-            description: 'Failed to process thumbnail. Please try uploading a thumbnail image instead.',
-            variant: 'destructive',
-          });
-          throw error;
-        }
+        finalThumbnailFile = new File([recordedThumbnail], `thumb_${timestamp}.jpg`, { type: 'image/jpeg', lastModified: timestamp });
+        console.log('Created thumbnail file object:', finalThumbnailFile);
       } else if (thumbnailFile) {
         console.log('Using uploaded thumbnail file:', thumbnailFile.name);
         finalThumbnailFile = thumbnailFile;
@@ -446,7 +409,6 @@ export default function CreateVideoPage() {
       } catch (uploadError: any) {
         console.error('Error during video upload:', uploadError);
         
-        // Check for CORS errors
         if (uploadError.message && uploadError.message.includes('CORS')) {
           toast({
             title: 'Upload Error',
@@ -527,9 +489,7 @@ export default function CreateVideoPage() {
               <div className="space-y-4">
                 <Label className="text-white">Video</Label>
                 
-                {/* Simple two-button layout */}
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Left side: Record/Stop button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
                     {!isMediaRecorderSupported ? (
                       <div className="text-center">
@@ -554,7 +514,7 @@ export default function CreateVideoPage() {
                         size="lg"
                         className="w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10"
                         onClick={startRecording}
-                        disabled={!!recordedVideo}
+                        disabled={!!recordedVideo || !!videoFile}
                       >
                         <VideoIcon className="h-6 w-6 mr-2" />
                         Record
@@ -562,30 +522,30 @@ export default function CreateVideoPage() {
                     )}
                   </div>
                   
-                  {/* Right side: Upload button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
                     <Input
                       id="video"
                       type="file"
+                      ref={videoFileInputRef}
                       accept="video/*"
                       onChange={handleVideoFileChange}
                       className="hidden"
+                      disabled={!!recordedVideo}
                     />
-                    <Label htmlFor="video" className="w-full">
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        className="w-full border-red-600 text-red-600 hover:bg-red-600/10"
-                      >
-                        <Upload className="h-6 w-6 mr-2" />
-                        Upload
-                      </Button>
-                    </Label>
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      className="w-full border-red-600 text-red-600 hover:bg-red-600/10"
+                      onClick={() => videoFileInputRef.current?.click()}
+                      disabled={!!recordedVideo}
+                    >
+                      <Upload className="h-6 w-6 mr-2" />
+                      Upload
+                    </Button>
                   </div>
                 </div>
                 
-                {/* Video preview */}
                 {isRecording && (
                   <div className="mt-4 bg-black rounded-lg overflow-hidden">
                     <div className="relative">
@@ -604,8 +564,7 @@ export default function CreateVideoPage() {
                   </div>
                 )}
                 
-                {/* Recorded video preview with system controls */}
-                {recordedVideo && !isRecording && (
+                {(recordedVideo || videoFile) && !isRecording && (
                   <div className="mt-4 bg-black/20 rounded-lg p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h4 className="text-white font-medium">Video Preview</h4>
@@ -616,10 +575,12 @@ export default function CreateVideoPage() {
                         className="text-white/70 hover:text-white hover:bg-black/20"
                         onClick={() => {
                           setRecordedVideo(null);
+                          setVideoFile(null);
                           setRecordedThumbnail(null);
                           setThumbnailPreview(null);
                           setDuration(0);
                           setIsPlaying(false);
+                          if(videoFileInputRef.current) videoFileInputRef.current.value = "";
                         }}
                       >
                         Reset
@@ -629,7 +590,7 @@ export default function CreateVideoPage() {
                     <div className="bg-black rounded-lg overflow-hidden mb-4">
                       <video 
                         ref={videoRef} 
-                        src={URL.createObjectURL(recordedVideo)} 
+                        src={recordedVideo ? URL.createObjectURL(recordedVideo) : videoFile ? URL.createObjectURL(videoFile) : ''} 
                         className="w-full"
                         controls
                       />
@@ -637,7 +598,7 @@ export default function CreateVideoPage() {
                     
                     <div className="flex justify-between items-center">
                       <div className="text-white/70 text-xs">
-                        {Math.round(recordedVideo.size / 1024)} KB recorded
+                        {recordedVideo ? `${Math.round(recordedVideo.size / 1024)} KB recorded` : videoFile ? `${videoFile.name} (${Math.round(videoFile.size / 1024)} KB)` : ''}
                       </div>
                       
                       <Button
@@ -650,50 +611,8 @@ export default function CreateVideoPage() {
                     </div>
                   </div>
                 )}
-                
-                {/* Uploaded video preview */}
-                {videoFile && !recordedVideo && (
-                  <div className="mt-4 bg-black/20 rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="text-white font-medium">File Upload</h4>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-white/70 hover:text-white hover:bg-black/20"
-                        onClick={() => {
-                          setVideoFile(null);
-                          setDuration(0);
-                        }}
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                    
-                    <div className="flex items-center mb-4">
-                      <div className="bg-black/20 rounded p-2 mr-3">
-                        <VideoIcon className="h-5 w-5 text-[#FFB619]" />
-                      </div>
-                      <div>
-                        <div className="text-white font-medium">{videoFile.name}</div>
-                        <div className="text-white/70 text-xs">{Math.round(videoFile.size / 1024)} KB</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button
-                        type="submit"
-                        className="bg-[#FFB619] hover:bg-[#FFB619]/90 text-white"
-                        disabled={loading || !thumbnailPreview}
-                      >
-                        {loading ? 'Creating...' : 'Create Video Post'}
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
               
-              {/* Thumbnail section - only show if we have a video */}
               {(recordedVideo || videoFile) && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -715,9 +634,7 @@ export default function CreateVideoPage() {
                     )}
                   </div>
                   
-                  {/* Thumbnail actions */}
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Upload thumbnail */}
                     <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
                       <Input
                         id="thumbnail"
@@ -739,7 +656,6 @@ export default function CreateVideoPage() {
                       </Label>
                     </div>
                     
-                    {/* Capture thumbnail from video */}
                     <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
                       <Button
                         type="button"
@@ -755,7 +671,6 @@ export default function CreateVideoPage() {
                     </div>
                   </div>
                   
-                  {/* Thumbnail preview */}
                   {thumbnailPreview && (
                     <div className="mt-4 bg-black/20 rounded-lg p-4">
                       <h4 className="text-white font-medium mb-3">Thumbnail Preview</h4>
@@ -771,7 +686,6 @@ export default function CreateVideoPage() {
                 </div>
               )}
               
-              {/* Submit button is now next to each preview */}
             </form>
           </CardContent>
         </Card>
@@ -779,3 +693,5 @@ export default function CreateVideoPage() {
     </div>
   );
 }
+
+    
