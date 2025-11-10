@@ -39,6 +39,7 @@ export default function CreateVideoPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -392,7 +393,7 @@ export default function CreateVideoPage() {
         await createVideoContent(
           user.uid,
           title,
-          "", // Empty description
+          description,
           finalVideoFile,
           finalThumbnailFile,
           duration,
@@ -464,6 +465,7 @@ export default function CreateVideoPage() {
           </Link>
         </div>
         
+        
         <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create Video Content</CardTitle>
@@ -485,64 +487,82 @@ export default function CreateVideoPage() {
                 />
               </div>
               
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-white">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter a description for your video"
+                  className="bg-black/20 border-white/20 text-white min-h-[100px]"
+                />
+              </div>
               
               <div className="space-y-4">
                 <Label className="text-white">Video</Label>
                 
+                {/* Simple two-button layout */}
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Left side: Record button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
-                    {!isMediaRecorderSupported ? (
-                      <div className="text-center">
-                        <div className="text-red-500 mb-2">Recording not supported</div>
-                        <div className="text-white/70 text-xs">Your browser doesn't support video recording</div>
-                      </div>
-                    ) : isRecording ? (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="lg"
-                        className="w-full flex items-center justify-center"
-                        onClick={stopRecording}
-                      >
-                        <StopCircle className="h-6 w-6 mr-2" />
-                        Stop
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        className="w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10"
-                        onClick={startRecording}
-                        disabled={!!recordedVideo || !!videoFile}
-                      >
-                        <VideoIcon className="h-6 w-6 mr-2" />
-                        Record
-                      </Button>
-                    )}
+                    <div className="space-y-4 w-full">
+                      {!isMediaRecorderSupported ? (
+                        <div className="text-center">
+                          <div className="text-red-500 mb-2">Recording not supported</div>
+                          <div className="text-white/70 text-xs">Your browser doesn't support video recording</div>
+                        </div>
+                      ) : isRecording ? (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="lg"
+                          className="w-full flex items-center justify-center"
+                          onClick={stopRecording}
+                        >
+                          <StopCircle className="h-6 w-6 mr-2" />
+                          Stop Recording
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="lg"
+                          className="w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10"
+                          onClick={startRecording}
+                          disabled={!!recordedVideo || !!videoFile}
+                        >
+                          <VideoIcon className="h-6 w-6 mr-2" />
+                          Record Video
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   
+                  {/* Right side: Upload button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
-                    <Input
-                      id="video"
-                      type="file"
-                      ref={videoFileInputRef}
-                      accept="video/*"
-                      onChange={handleVideoFileChange}
-                      className="hidden"
-                      disabled={!!recordedVideo}
-                    />
-                    <Button 
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      className="w-full border-red-600 text-red-600 hover:bg-red-600/10"
-                      onClick={() => videoFileInputRef.current?.click()}
-                      disabled={!!recordedVideo}
-                    >
-                      <Upload className="h-6 w-6 mr-2" />
-                      Upload
-                    </Button>
+                    <div className="w-full text-center">
+                      <input
+                        id="video-file"
+                        name="videoFile"
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoFileChange}
+                        className="hidden"
+                      />
+                      <label 
+                        htmlFor="video-file" 
+                        className="flex flex-col items-center justify-center cursor-pointer w-full border-2 border-dashed border-[#FFB619] rounded-lg p-6 transition-all hover:bg-[#FFB619]/10"
+                      >
+                        <Upload className="h-8 w-8 text-[#FFB619] mb-2" />
+                        <span className="text-[#FFB619] font-medium mb-1">Upload Video</span>
+                        <span className="text-white/70 text-sm">Click to browse files</span>
+                      </label>
+                      {videoFile && (
+                        <div className="mt-3 text-sm text-white/80">
+                          <span className="font-medium">Selected:</span> {videoFile.name}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -636,24 +656,32 @@ export default function CreateVideoPage() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
-                      <Input
+                      <input
                         id="thumbnail"
                         type="file"
                         accept="image/*"
                         onChange={handleThumbnailFileChange}
-                        className="hidden"
+                        style={{ display: 'none' }}
                       />
-                      <Label htmlFor="thumbnail" className="w-full">
-                        <Button 
-                          type="button"
-                          variant="outline"
-                          size="lg"
-                          className="w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10"
-                        >
-                          <Upload className="h-6 w-6 mr-2" />
-                          Upload Thumbnail
-                        </Button>
-                      </Label>
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="w-full border-[#FFB619] text-[#FFB619] hover:bg-[#FFB619]/10"
+                        onClick={() => {
+                          console.log('Thumbnail upload button clicked');
+                          const thumbnailInput = document.getElementById('thumbnail') as HTMLInputElement;
+                          if (thumbnailInput) {
+                            console.log('Triggering thumbnail file input click');
+                            thumbnailInput.click();
+                          } else {
+                            console.error('Thumbnail input element not found');
+                          }
+                        }}
+                      >
+                        <Upload className="h-6 w-6 mr-2" />
+                        Upload Thumbnail
+                      </Button>
                     </div>
                     
                     <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">

@@ -196,12 +196,12 @@ export default function UserFeedPage() {
                   placeholder="Enter your email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-grow bg-white/10 border border-white/20 rounded-l-full px-6 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex-grow bg-white/10 border border-white/20 rounded-full px-6 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   disabled={subscribeLoading || subscribeSuccess}
                 />
                 <button 
                   type="submit" 
-                  className="bg-purple-500 hover:bg-purple-600 text-white font-medium px-8 py-3 rounded-r-full transition-colors disabled:opacity-70"
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-medium ml-2 px-8 py-3 rounded-full transition-colors disabled:opacity-70"
                   style={{ backgroundColor: '#c084fc' }}
                   disabled={subscribeLoading || subscribeSuccess}
                 >

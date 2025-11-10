@@ -27,6 +27,7 @@ export default function CreateAudioPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [podcastName, setPodcastName] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -432,7 +433,7 @@ export default function CreateAudioPage() {
       await createAudioContent(
         user.uid,
         title,
-        "", // Empty description
+        description,
         finalAudioFile,
         duration,
         podcastName || undefined,
@@ -485,6 +486,7 @@ export default function CreateAudioPage() {
           </Link>
         </div>
         
+        
         <Card className="bg-black/20 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-2xl text-white">Create Audio Content</CardTitle>
@@ -506,6 +508,16 @@ export default function CreateAudioPage() {
                 />
               </div>
               
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-white">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter a description for your audio content"
+                  className="bg-black/20 border-white/20 text-white min-h-[100px]"
+                />
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="podcastName" className="text-white">Podcast Name (Optional)</Label>
@@ -572,26 +584,29 @@ export default function CreateAudioPage() {
                   
                   {/* Right side: Upload button */}
                   <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
-                    <Input
-                      id="audio"
-                      type="file"
-                      ref={fileInputRef}
-                      accept="audio/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      disabled={!!recordedAudio}
-                    />
-                    <Button 
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      className="w-full border-blue-600 text-blue-600 hover:bg-blue-600/10"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={!!recordedAudio}
-                    >
-                      <Upload className="h-6 w-6 mr-2" />
-                      Upload
-                    </Button>
+                    <div className="w-full text-center">
+                      <input
+                        id="audio-file"
+                        name="audioFile"
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <label 
+                        htmlFor="audio-file" 
+                        className="flex flex-col items-center justify-center cursor-pointer w-full border-2 border-dashed border-blue-600 rounded-lg p-6 transition-all hover:bg-blue-600/10"
+                      >
+                        <Upload className="h-8 w-8 text-blue-600 mb-2" />
+                        <span className="text-blue-600 font-medium mb-1">Upload Audio</span>
+                        <span className="text-white/70 text-sm">Click to browse files</span>
+                      </label>
+                      {audioFile && (
+                        <div className="mt-3 text-sm text-white/80">
+                          <span className="font-medium">Selected:</span> {audioFile.name}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 

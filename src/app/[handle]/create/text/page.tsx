@@ -19,6 +19,7 @@ export default function CreateTextPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('General');
   const [readTime, setReadTime] = useState(5);
@@ -146,7 +147,7 @@ export default function CreateTextPage() {
       await createTextContent(
         user.uid,
         title,
-        "", // Empty description
+        description,
         content,
         category,
         readTime,
@@ -221,6 +222,16 @@ export default function CreateTextPage() {
                 />
               </div>
               
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-white">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter a short description for your content"
+                  className="bg-black/20 border-white/20 text-white min-h-[100px]"
+                />
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="content" className="text-white">Content</Label>
@@ -261,24 +272,30 @@ export default function CreateTextPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="border border-dashed border-white/30 rounded-md p-6 text-center bg-black/20">
-                    <div className="flex flex-col items-center justify-center">
-                      <Upload className="h-8 w-8 mb-2 text-white/70" />
-                      <span className="text-white/70 text-sm">Click to upload an image</span>
-                      <span className="text-white/50 text-xs mt-1">PNG, JPG, GIF up to 5MB</span>
-                      
-                      <label className="mt-4 w-full">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                          ref={fileInputRef}
-                        />
-                        <div className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded cursor-pointer text-center">
-                          Choose File
-                        </div>
+                  <div className="border border-white/30 rounded-lg p-6 flex items-center justify-center">
+                    <div className="w-full text-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                        ref={fileInputRef}
+                      />
+                      <label 
+                        htmlFor="image-file" 
+                        onClick={triggerFileInput}
+                        className="flex flex-col items-center justify-center cursor-pointer w-full border-2 border-dashed border-purple-600 rounded-lg p-6 transition-all hover:bg-purple-600/10"
+                      >
+                        <Upload className="h-8 w-8 text-purple-600 mb-2" />
+                        <span className="text-purple-600 font-medium mb-1">Upload Image</span>
+                        <span className="text-white/70 text-sm">Click to browse files</span>
+                        <span className="text-white/50 text-xs mt-1">PNG, JPG, GIF up to 5MB</span>
                       </label>
+                      {imageFile && (
+                        <div className="mt-3 text-sm text-white/80">
+                          <span className="font-medium">Selected:</span> {imageFile.name}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
