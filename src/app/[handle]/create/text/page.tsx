@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, X, Image as ImageIcon } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function CreateTextPage() {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('General');
   const [readTime, setReadTime] = useState(5);
+  const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -151,7 +153,7 @@ export default function CreateTextPage() {
         content,
         category,
         readTime,
-        true, // Published by default
+        isPublic, // Use the isPublic state
         imageFile || undefined // Pass the image file if it exists
       );
       
@@ -325,6 +327,17 @@ export default function CreateTextPage() {
                 </div>
               </div>
               
+              <div className="flex items-center space-x-2 pt-4">
+                <Checkbox 
+                  id="public"
+                  checked={isPublic}
+                  onCheckedChange={(checked) => setIsPublic(checked === true)}
+                />
+                <Label htmlFor="public" className="text-white cursor-pointer">
+                  Public post (uncheck to make this post visible to members only)
+                </Label>
+              </div>
+
               <div className="flex justify-end pt-4">
                 <Button
                   type="submit"

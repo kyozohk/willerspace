@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useMembership } from '@/contexts/MembershipContext';
 import { isHandleOwner } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { TextCard } from '@/components/TextCard';
@@ -25,6 +26,7 @@ import { Post, AudioPost, VideoPost } from '@/lib/content-adapters';
 export default function UserFeedPage() {
   const { handle } = useParams();
   const { user } = useAuthContext();
+  const { isMember } = useMembership();
   const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,8 +51,8 @@ export default function UserFeedPage() {
           const ownerStatus = user ? await isHandleOwner(user.uid, handle) : false;
           setIsOwner(ownerStatus);
           
-          // Fetch user content
-          const userContent = await getUserContent(userProfile.uid);
+          // Fetch user content based on membership status
+          const userContent = await getUserContent(userProfile.uid, isMember);
           setContent(userContent);
         }
       } catch (error) {
@@ -61,7 +63,7 @@ export default function UserFeedPage() {
     };
     
     fetchUserAndContent();
-  }, [handle, user]);
+  }, [handle, user, isMember]);
 
   // Handle subscription form submission
   const handleSubscribe = async (e: FormEvent) => {
@@ -323,11 +325,17 @@ export default function UserFeedPage() {
                     handle={handle as string}
                   />
                 ) : (
-                  <TextCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <TextCard 
+                      post={post} 
+                      layout="desktop"
+                    />
+                  </div>
                 );
               } else if (item.type === 'listen') {
                 const post = adaptContent(item, handle as string) as AudioPost;
@@ -341,11 +349,17 @@ export default function UserFeedPage() {
                     handle={handle as string}
                   />
                 ) : (
-                  <VoiceCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <VoiceCard 
+                      post={post} 
+                      layout="desktop"
+                    />
+                  </div>
                 );
               } else if (item.type === 'watch') {
                 const post = adaptContent(item, handle as string) as VideoPost;
@@ -359,11 +373,17 @@ export default function UserFeedPage() {
                     handle={handle as string}
                   />
                 ) : (
-                  <VideoCard 
-                    key={item.id} 
-                    post={post} 
-                    layout="desktop"
-                  />
+                  <div key={item.id} className="relative">
+                    {!item.published && (
+                      <div className="absolute top-2 right-2 bg-[#FFB619] text-white text-xs px-2 py-1 rounded-full z-10">
+                        Members Only
+                      </div>
+                    )}
+                    <VideoCard 
+                      post={post} 
+                      layout="desktop"
+                    />
+                  </div>
                 );
               }
               return null;

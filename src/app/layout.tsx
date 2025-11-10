@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Header } from '@/components/Header';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { MembershipProvider } from '@/contexts/MembershipContext';
+import { JoinCTAWrapper } from '@/components/JoinCTAWrapper';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
@@ -34,20 +36,24 @@ export default function RootLayout({
           />
         </div>
         
-        {/* Wrap everything in AuthProvider */}
+        {/* Wrap everything in AuthProvider and MembershipProvider */}
         <AuthProvider>
-          {/* Fixed header - no background */}
-          <Header />
-          
-          {/* Scrollable content */}
-          <div className="relative z-10 min-h-screen pt-20">
-            <main className="flex-grow">
-              {children}
-            </main>
-          </div>
-          
-          {/* Toast notifications */}
-          <Toaster />
+          <MembershipProvider>
+            <JoinCTAWrapper>
+              {/* Fixed header - no background */}
+              <Header />
+              
+              {/* Scrollable content */}
+              <div className="relative z-10 min-h-screen pt-20">
+                <main className="flex-grow">
+                  {children}
+                </main>
+              </div>
+            </JoinCTAWrapper>
+            
+            {/* Toast notifications */}
+            <Toaster />
+          </MembershipProvider>
         </AuthProvider>
       </body>
     </html>

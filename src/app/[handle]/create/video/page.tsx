@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Video as VideoIcon, StopCircle, Play, Pause, Camera } from 'lucide-react';
@@ -52,6 +53,7 @@ export default function CreateVideoPage() {
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
@@ -397,7 +399,7 @@ export default function CreateVideoPage() {
           finalVideoFile,
           finalThumbnailFile,
           duration,
-          true // Published by default
+          isPublic // Use isPublic state
         );
         
         console.log('Video upload completed successfully');
@@ -616,6 +618,17 @@ export default function CreateVideoPage() {
                       />
                     </div>
                     
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Checkbox 
+                        id="public"
+                        checked={isPublic}
+                        onCheckedChange={(checked) => setIsPublic(checked === true)}
+                      />
+                      <Label htmlFor="public" className="text-white cursor-pointer">
+                        Public post (uncheck to make this post visible to members only)
+                      </Label>
+                    </div>
+
                     <div className="flex justify-between items-center">
                       <div className="text-white/70 text-xs">
                         {recordedVideo ? `${Math.round(recordedVideo.size / 1024)} KB recorded` : videoFile ? `${videoFile.name} (${Math.round(videoFile.size / 1024)} KB)` : ''}
