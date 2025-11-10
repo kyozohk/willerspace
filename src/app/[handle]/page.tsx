@@ -48,7 +48,10 @@ export default function UserFeedPage() {
         
         if (userProfile) {
           // Check if current user is the owner of this profile
-          const ownerStatus = user ? await isHandleOwner(user.uid, handle) : false;
+          // First check by handle ownership, then by direct UID comparison
+          const handleOwnerStatus = user ? await isHandleOwner(user.uid, handle) : false;
+          const directOwnerStatus = user?.uid === userProfile.uid;
+          const ownerStatus = handleOwnerStatus || directOwnerStatus;
           setIsOwner(ownerStatus);
           
           // Determine if the current user should see all content
@@ -62,13 +65,9 @@ export default function UserFeedPage() {
             canSeeAllContent 
           });
           
-          // Double-check ownership by comparing UIDs directly
-          const isDirectOwner = user?.uid === userProfile.uid;
-          
           // Fetch user content based on visibility permissions
-          // Use direct ownership check as a fallback
-          const userContent = await getUserContent(userProfile.uid, canSeeAllContent || isDirectOwner);
-          console.log('Retrieved content count:', userContent.length, 'isDirectOwner:', isDirectOwner);
+          const userContent = await getUserContent(userProfile.uid, canSeeAllContent);
+          console.log('Retrieved content count:', userContent.length);
           setContent(userContent);
         }
       } catch (error) {
