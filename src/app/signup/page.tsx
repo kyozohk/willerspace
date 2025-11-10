@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { signUp, signInWithGoogle } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Upload } from 'lucide-react';
 
 export default function SignUpPage() {
   const [firstName, setFirstName] = useState('');
@@ -16,9 +19,19 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfilePicture(file);
+      setProfilePicturePreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +48,7 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await signUp(email, password, firstName, lastName);
+      await signUp(email, password, firstName, lastName, profilePicture || undefined);
       toast({
         title: 'Success',
         description: 'Your account has been created successfully.',
@@ -85,6 +98,30 @@ export default function SignUpPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="flex flex-col items-center space-y-4">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profilePicturePreview || undefined} alt="Profile Preview" />
+                  <AvatarFallback className="bg-purple-700 text-white text-xl">
+                    {firstName.charAt(0)}{lastName.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <Input
+                    id="profilePicture"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                  <Label
+                    htmlFor="profilePicture"
+                    className="cursor-pointer bg-black/20 hover:bg-white/20 text-white py-2 px-4 rounded-md flex items-center"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Picture
+                  </Label>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-white">First Name</Label>

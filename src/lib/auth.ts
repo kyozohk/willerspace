@@ -5,24 +5,32 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
- updateProfile,
- getAuth,
- sendPasswordResetEmail,
+  updateProfile,
+  getAuth,
+  sendPasswordResetEmail,
   User
 } from "firebase/auth";
-import { auth, db } from "./firebase";
+import { auth, db, storage } from "./firebase";
 import { useState, useEffect } from "react";
 import React from "react";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { UserProfile } from "../types/user";
 import { app } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 
 // Sign up with email and password
-export const signUp = async (email: string, password: string, firstName: string, lastName: string): Promise<User> => {
+export const signUp = async (email: string, password: string, firstName: string, lastName: string, profilePicture?: File): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    let photoURL: string | null = null;
+    if (profilePicture) {
+      const storageRef = ref(storage, `profile_pictures/${user.uid}/${Date.now()}_${profilePicture.name}`);
+      await uploadBytes(storageRef, profilePicture);
+      photoURL = await getDownloadURL(storageRef);
+    }
     
     // Create user profile in Firestore
     await setDoc(doc(db, "users", user.uid), {
@@ -31,15 +39,16 @@ export const signUp = async (email: string, password: string, firstName: string,
       lastName,
       email,
       handle: null, // Will be set later
-      photoURL: null,
+      photoURL: photoURL,
       bio: null,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now()
     });
     
-    // Update display name in Firebase Auth
+    // Update display name and photo in Firebase Auth
     await updateProfile(user, {
-      displayName: `${firstName} ${lastName}`
+      displayName: `${firstName} ${lastName}`,
+      photoURL: photoURL
     });
     
     return user;
